@@ -1,0 +1,422 @@
+/* seat.wxss - 座位管理 · 简约设计 */
+
+.order-banner {
+  display: flex;
+  align-items: center;
+  background: #2563EB;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  color: white;
+}
+.banner-badge {
+  font-size: 20rpx;
+  padding: 6rpx 14rpx;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+.banner-body { flex: 1; min-width: 0; }
+.banner-main { font-size: 25rpx; font-weight: 600; display: block; margin-bottom: 2rpx; }
+.banner-sub { font-size: 21rpx; opacity: 0.75; display: block; }
+.banner-action {
+  font-size: 24rpx; font-weight: 600;
+  padding: 12rpx 22rpx;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20rpx;
+  flex-shrink: 0;
+}
+
+/* ====== 包间介绍模块 ====== */
+.zone-intro-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid #E5E7EB;
+}
+.zone-intro-header {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 18rpx;
+}
+.zone-intro-icon { font-size: 30rpx; }
+.zone-intro-title { font-size: 28rpx; font-weight: 700; color: #1F2937; }
+.zone-intro-sub { font-size: 22rpx; color: #9CA3AF; margin-left: auto; }
+
+.zone-intro-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.zone-intro-item {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 20rpx;
+  border-radius: 12rpx;
+  gap: 16rpx;
+  transition: all 0.2s ease;
+  border: 1rpx solid #E5E7EB;
+  background: #FAFAFA;
+}
+.zone-intro-item:active { transform: scale(0.98); background: #F3F4F6; }
+
+.zi-icon-wrap {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #F3F4F6;
+}
+.zi-icon { font-size: 32rpx; }
+
+.zi-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2rpx; }
+.zi-name { font-size: 26rpx; font-weight: 700; color: #1F2937; }
+.zi-tagline { font-size: 22rpx; color: #6B7280; }
+
+.zi-price {
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: baseline;
+  gap: 2rpx;
+  flex-shrink: 0;
+  background: #F3F4F6;
+  min-width: 100rpx;
+  justify-content: center;
+}
+.zi-price-val { font-size: 28rpx; font-weight: 800; color: #1F2937; font-family: 'SF Mono', monospace; }
+.zi-price-unit { font-size: 20rpx; color: #6B7280; }
+
+/* ====== 使用指南卡片 ====== */
+.guide-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid #E5E7EB;
+}
+.guide-header { display: flex; align-items: center; gap: 10rpx; margin-bottom: 18rpx; }
+.guide-icon { font-size: 30rpx; }
+.guide-title { font-size: 28rpx; font-weight: 700; color: #1F2937; }
+.guide-steps { display: flex; flex-direction: column; gap: 12rpx; }
+.step-item {
+  display: flex; align-items: flex-start; gap: 14rpx;
+  padding: 14rpx 18rpx;
+  background: #FAFAFA;
+  border-radius: 10rpx;
+  border-left: 3rpx solid #2563EB;
+}
+.step-num {
+  width: 40rpx; height: 40rpx;
+  background: #2563EB;
+  color: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22rpx; font-weight: 800; flex-shrink: 0;
+}
+.step-body { flex: 1; }
+.step-title { font-size: 24rpx; font-weight: 600; color: #1F2937; display: block; margin-bottom: 2rpx; }
+.step-desc { font-size: 22rpx; color: #6B7280; line-height: 1.4; }
+
+/* 加载 */
+.loading-box { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300rpx; gap: 16rpx; }
+.loading-txt { color: #9CA3AF; font-size: 25rpx; }
+
+/* 座位卡片 */
+.seat-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  border: 1rpx solid #E5E7EB;
+}
+.sc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; padding-bottom: 16rpx; border-bottom: 1rpx solid #E5E7EB; }
+.sc-title-area { display: flex; flex-direction: column; gap: 2rpx; }
+.sc-title { font-size: 28rpx; font-weight: 800; color: #1F2937; }
+.sc-sub { font-size: 20rpx; color: #9CA3AF; }
+.sc-actions { display: flex; align-items: center; gap: 12rpx; margin-left: auto; margin-right: 12rpx; }
+.sc-refresh-btn {
+  width: 52rpx; height: 52rpx;
+  display: flex; align-items: center; justify-content: center;
+  background: #F3F4F6;
+  border-radius: 50%;
+  border: 1rpx solid #E5E7EB;
+  transition: all 0.2s ease;
+}
+.sc-refresh-btn:active { transform: scale(0.9); background: #E5E7EB; }
+.sc-refresh-icon { font-size: 26rpx; }
+.sc-status-summary { display: flex; align-items: center; gap: 12rpx; }
+.ss-dot { width: 12rpx; height: 12rpx; border-radius: 50%; }
+.ss-avail { background: #10B981; }
+.ss-use { background: #2563EB; }
+.ss-fix { background: #9CA3AF; }
+.ss-txt { font-size: 22rpx; color: #6B7280; font-weight: 500; }
+
+/* 图例 */
+.legend-bar { display: flex; justify-content: center; gap: 28rpx; margin-bottom: 20rpx; padding-bottom: 16rpx; border-bottom: 1rpx solid #E5E7EB; }
+.lg-item { display: flex; align-items: center; gap: 8rpx; font-size: 22rpx; color: #6B7280; font-weight: 500; }
+.lg-dot { width: 14rpx; height: 14rpx; border-radius: 50%; }
+.lg-dot.avail { background: #10B981; }
+.lg-dot.rsv { background: #F59E0B; }
+.lg-dot.use { background: #2563EB; }
+.lg-dot.fix { background: #9CA3AF; }
+
+/* ====== 分区标题 ====== */
+.zone-header {
+  display: flex;
+  align-items: center;
+  padding: 14rpx 18rpx;
+  margin: 10rpx 0 6rpx;
+  border-radius: 10rpx;
+  gap: 12rpx;
+  background: #F3F4F6;
+  border: 1rpx solid #E5E7EB;
+}
+.zh-left { display: flex; align-items: center; gap: 8rpx; }
+.zh-icon { font-size: 24rpx; }
+.zh-name { font-size: 22rpx; font-weight: 700; color: #1F2937; }
+.zh-tagline { font-size: 20rpx; color: #6B7280; flex: 1; }
+.zh-price-tag {
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+  flex-shrink: 0;
+  background: #E5E7EB;
+  min-width: 90rpx;
+  text-align: center;
+}
+.zh-price-val { font-size: 20rpx; font-weight: 700; color: #1F2937; }
+
+/* 座位表格 */
+.seat-table { overflow-x: auto; }
+.table-head { display: flex; align-items: center; margin-bottom: 8rpx; }
+.th-cols { display: flex; gap: 10rpx; flex: 1; }
+.th-cell {
+  width: 50rpx; height: 40rpx;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20rpx; color: #9CA3AF;
+  background: #F3F4F6; border-radius: 6rpx;
+  font-weight: 600; flex-shrink: 0;
+}
+.th-cell.corner { visibility: hidden; margin-right: 8rpx; flex-shrink: 0; }
+.th-text { font-size: 20rpx; font-weight: 700; color: #6B7280; }
+.table-row { display: flex; align-items: center; margin-bottom: 8rpx; }
+.row-label {
+  width: 50rpx; height: 44rpx;
+  display: flex; align-items: center; justify-content: center;
+  background: #F3F4F6;
+  border-radius: 6rpx;
+  margin-right: 8rpx; flex-shrink: 0;
+}
+.rl-text { font-size: 20rpx; font-weight: 700; color: #2563EB; }
+.row-cells { display: flex; flex-wrap: wrap; gap: 8rpx; flex: 1; }
+
+.seat-cell {
+  width: 50rpx; height: 44rpx;
+  border-radius: 6rpx;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18rpx; font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer; flex-shrink: 0;
+}
+.seat-no { letter-spacing: -0.02em; }
+.seat-cell.avail {
+  background: #D1FAE5;
+  color: #059669;
+  border: 1rpx solid #10B981;
+}
+.seat-cell.avail:active { transform: scale(0.92); background: #A7F3D0; }
+.seat-cell.use {
+  background: #DBEAFE;
+  color: #2563EB;
+  border: 1rpx solid #3B82F6;
+}
+.seat-cell.fix {
+  background: #F3F4F6;
+  color: #9CA3AF;
+  border: 1rpx solid #D1D5DB;
+}
+.empty-cell { background: transparent; border: none; }
+
+.sc-footer { display: flex; align-items: center; justify-content: center; gap: 8rpx; margin-top: 18rpx; padding-top: 16rpx; border-top: 1rpx dashed #E5E7EB; }
+.sc-footer-icon { font-size: 24rpx; }
+.sc-footer-text { font-size: 22rpx; color: #6B7280; font-weight: 500; }
+
+/* ====== 包间详情弹窗 ====== */
+.room-detail-modal {
+  max-width: 600rpx;
+  max-height: 85vh;
+  margin-top: -180rpx;
+}
+.rd-tagline {
+  text-align: center;
+  padding: 12rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+  background: #F3F4F6;
+  color: #1F2937;
+}
+.rd-price-section {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+}
+.rd-price-card {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 10rpx;
+  border-radius: 10rpx;
+  background: #F3F4F6;
+}
+.rd-price-label { font-size: 20rpx; color: #6B7280; display: block; margin-bottom: 4rpx; }
+.rd-price-amount { font-size: 36rpx; font-weight: 900; color: #1F2937; font-family: 'SF Mono', monospace; display: block; }
+.rd-price-unit { font-size: 18rpx; color: #9CA3AF; }
+
+.rd-features { margin-bottom: 8rpx; }
+.rd-features-title { font-size: 24rpx; font-weight: 700; color: #1F2937; display: block; margin-bottom: 14rpx; }
+.rd-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 14rpx 18rpx;
+  background: #F3F4F6;
+  border-radius: 10rpx;
+  margin-bottom: 10rpx;
+}
+.rd-feat-icon-wrap {
+  width: 56rpx; height: 56rpx;
+  border-radius: 10rpx;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  background: #E5E7EB;
+}
+.rd-feat-icon { font-size: 28rpx; }
+.rd-feat-info { flex: 1; }
+.rd-feat-title { font-size: 24rpx; font-weight: 600; color: #1F2937; display: block; margin-bottom: 2rpx; }
+.rd-feat-desc { font-size: 20rpx; color: #6B7280; }
+
+/* ====== 订座弹窗 ====== */
+.reserve-modal { max-width: 580rpx; max-height: 82vh; margin-top: -200rpx; }
+.reserve-info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16rpx 20rpx;
+  background: #F3F4F6; border-radius: 10rpx;
+  margin-bottom: 20rpx;
+}
+.info-label { font-size: 24rpx; color: #6B7280; font-weight: 500; }
+.info-value-box { display: flex; align-items: center; gap: 10rpx; }
+.info-seat-num { font-size: 28rpx; font-weight: 800; color: #1F2937; font-family: 'SF Mono', monospace; }
+.tag-blue {
+  background: #2563EB;
+  color: white; padding: 4rpx 12rpx;
+  border-radius: 6rpx; font-weight: 600; font-size: 20rpx;
+}
+.form-section { margin-bottom: 18rpx; }
+.form-label { font-size: 24rpx; font-weight: 600; color: #1F2937; margin-bottom: 12rpx; display: block; }
+.plan-grid { display: flex; gap: 12rpx; }
+.plan-chip {
+  flex: 1; text-align: center;
+  padding: 16rpx 10rpx;
+  background: #F3F4F6; border: 1rpx solid #E5E7EB;
+  border-radius: 10rpx;
+  transition: all 0.2s ease;
+}
+.plan-chip.chip-active {
+  background: #2563EB;
+  border-color: #2563EB;
+}
+.plan-name { font-size: 24rpx; font-weight: 600; display: block; margin-bottom: 2rpx; color: #1F2937; }
+.plan-chip.chip-active .plan-name { color: white; }
+.plan-rate { font-size: 18rpx; color: #6B7280; }
+.plan-chip.chip-active .plan-rate { color: rgba(255,255,255,0.8); }
+.picker-display {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18rpx 20rpx;
+  background: #F3F4F6; border: 1rpx solid #E5E7EB;
+  border-radius: 10rpx;
+  font-size: 26rpx; color: #1F2937; font-weight: 500;
+}
+.picker-arrow { color: #9CA3AF; font-size: 22rpx; }
+.expire-info {
+  display: flex; align-items: center; gap: 12rpx;
+  padding: 16rpx 20rpx;
+  background: #EFF6FF;
+  border-radius: 10rpx;
+  margin-bottom: 16rpx;
+}
+.expire-icon { font-size: 28rpx; }
+.expire-detail { flex: 1; }
+.expire-lbl { font-size: 22rpx; color: #6B7280; display: block; }
+.expire-val { font-size: 24rpx; font-weight: 700; color: #2563EB; }
+
+.coupon-trigger {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18rpx 20rpx;
+  background: #FFF7ED;
+  border: 1rpx solid #FED7AA;
+  border-radius: 10rpx;
+  margin-bottom: 16rpx;
+  transition: all 0.2s ease;
+}
+.coupon-trigger:active { background: #FFEDD5; transform: scale(0.99); }
+.ct-left { display: flex; align-items: center; gap: 10rpx; }
+.ct-icon { font-size: 28rpx; }
+.ct-lbl { font-size: 24rpx; font-weight: 600; color: #9A3412; }
+.ct-right { display: flex; align-items: center; gap: 8rpx; }
+.ct-selected { font-size: 22rpx; font-weight: 700; color: #EA580C; }
+.ct-placeholder { font-size: 22rpx; color: #C2410C; opacity: 0.65; }
+.ct-arrow { font-size: 28rpx; color: #F97316; font-weight: 300; }
+
+.price-summary { display: flex; justify-content: space-between; align-items: center; padding: 18rpx 20rpx; border-radius: 10rpx; }
+.price-lbl { font-size: 26rpx; font-weight: 600; color: #1F2937; }
+.price-right { display: flex; align-items: baseline; gap: 8rpx; }
+.price-old { font-size: 22rpx; color: #9CA3AF; text-decoration: line-through; }
+.price-now { font-size: 48rpx; font-weight: 900; color: #EF4444; font-family: 'SF Mono', monospace; }
+
+.btn-cancel { background: #F3F4F6 !important; color: #4B5563 !important; font-weight: 600 !important; border: none !important; }
+.btn-cancel:active { background: #E5E7EB !important; }
+.btn-confirm { background: #2563EB !important; color: white !important; font-weight: 600 !important; border: none !important; }
+.btn-confirm:active { background: #1D4ED8 !important; }
+
+/* ====== 二级弹窗：优惠券选择器 ====== */
+.modal-overlay-l2 { z-index: 1100; background: rgba(0, 0, 0, 0.5); }
+.coupon-picker-modal { max-width: 480rpx; max-height: 60vh; display: flex; flex-direction: column; }
+.cpm-body { flex: 1; overflow: hidden; padding: 0 24rpx; }
+.cpm-empty { display: flex; flex-direction: column; align-items: center; padding: 50rpx 20rpx; text-align: center; }
+.cpm-empty-icon { font-size: 64rpx; margin-bottom: 16rpx; opacity: 0.4; }
+.cpm-empty-text { font-size: 28rpx; font-weight: 600; color: #1F2937; display: block; margin-bottom: 6rpx; }
+.cpm-empty-sub { font-size: 22rpx; color: #9CA3AF; }
+.cpm-list { display: flex; flex-direction: column; gap: 12rpx; padding: 8rpx 0 16rpx; }
+.cpm-item {
+  display: flex; align-items: center;
+  background: white; border-radius: 10rpx;
+  padding: 18rpx 16rpx;
+  border: 1rpx solid #E5E7EB;
+  transition: all 0.2s ease; gap: 14rpx;
+}
+.cpm-item:active { transform: scale(0.98); }
+.cpm-item.cpm-sel { border-color: #F97316; background: #FFF7ED; }
+.cpm-left { min-width: 100rpx; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2rpx; flex-shrink: 0; }
+.cpm-amt { font-size: 32rpx; font-weight: 900; color: #EA580C; font-family: 'SF Mono', monospace; line-height: 1.1; }
+.cpm-type { font-size: 18rpx; color: #9A3412; font-weight: 500; }
+.cpm-amt-none { font-size: 24rpx; font-weight: 700; color: #6B7280; }
+.cpm-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2rpx; }
+.cpm-name { font-size: 24rpx; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cpm-scope { font-size: 20rpx; color: #6B7280; }
+.cpm-date { font-size: 18rpx; color: #9CA3AF; }
+.cpm-check-wrap { flex-shrink: 0; }
+.cpm-check {
+  width: 40rpx; height: 40rpx; border-radius: 50%;
+  border: 1rpx solid #E5E7EB; display: flex; align-items: center; justify-content: center;
+  font-size: 22rpx; color: transparent; font-weight: 800;
+  transition: all 0.2s ease;
+}
+.cpm-check.checked { background: #F97316; border-color: #F97316; color: white; }
+.cpm-none-opt .cpm-left { align-items: flex-start; justify-content: center; padding-top: 4rpx; }
+.cpm-footer { padding: 18rpx 0 !important; margin-bottom: 30rpx; width: 50%; margin: 24rpx auto !important; }
+.btn-cpm-confirm { width: 100% !important; background: #2563EB !important; border-radius: 40rpx; margin: 0 auto; }

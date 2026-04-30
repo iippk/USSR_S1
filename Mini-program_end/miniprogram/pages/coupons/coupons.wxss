@@ -1,0 +1,309 @@
+/* coupons.wxss - 优惠券 · Ocean Blue Enterprise */
+
+.coupon-header { overflow: hidden; text-align: center; }
+.ch-title {
+  font-size: 34rpx; font-weight: 800; display: block;
+  margin-bottom: 8rpx; letter-spacing: -0.01em;
+}
+.ch-sub {
+  font-size: 24rpx; opacity: 0.85; display: block;
+  margin-bottom: 28rpx;
+}
+
+.ch-stats {
+  display: flex; justify-content: center; align-items: center;
+  gap: 0; background: rgba(255,255,255,0.14);
+  border-radius: var(--radius-lg); padding: 20rpx 0;
+  backdrop-filter: blur(10rpx);
+}
+.ch-stat-item { padding: 0 36rpx; text-align: center; }
+.cs-num {
+  display: block; font-size: 40rpx; font-weight: 900;
+  font-family: 'SF Mono', monospace; line-height: 1.2;
+}
+.cs-lbl { font-size: 21rpx; opacity: 0.8; }
+.ch-divider {
+  width: 1rpx; height: 48rpx; background: rgba(255,255,255,0.2);
+}
+
+/* ====== 领取中心 ====== */
+.pool-section {
+  background: white;
+  border-radius: var(--radius-2xl);
+  padding: 24rpx 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-md);
+  border: 1rpx solid #F1F5F9;
+}
+
+.pool-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.pool-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.pool-sub {
+  font-size: 22rpx;
+  color: #94A3B8;
+}
+
+.pool-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.pool-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1rpx solid #BFDBFE;
+  min-height: 140rpx;
+}
+
+.pool-left {
+  width: 160rpx;
+  min-width: 160rpx;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 12rpx;
+  background: linear-gradient(145deg, #2563EB, #1D4ED8);
+  gap: 2rpx;
+}
+
+.pool-currency {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  line-height: 1;
+}
+
+.pool-amount {
+  font-size: 44rpx;
+  font-weight: 900;
+  color: white;
+  font-family: 'SF Mono', monospace;
+  line-height: 1.1;
+}
+
+.pool-condition {
+  font-size: 18rpx;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+  margin-top: 4rpx;
+}
+
+.pool-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16rpx 20rpx;
+  gap: 4rpx;
+  min-width: 0;
+}
+
+.pool-name {
+  font-size: 25rpx;
+  font-weight: 700;
+  color: #1E40AF;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pool-scope {
+  font-size: 21rpx;
+  color: #64748B;
+}
+
+.pool-date {
+  font-size: 20rpx;
+  color: #94A3B8;
+}
+
+.pool-stock {
+  font-size: 20rpx;
+  color: #0891B2;
+  font-weight: 600;
+}
+
+.pool-right {
+  flex-shrink: 0;
+  padding: 16rpx 20rpx;
+  display: flex;
+  align-items: center;
+}
+
+.pool-claim-btn {
+  background: linear-gradient(135deg, #06B6D4, #0891B2);
+  color: white;
+  font-size: 24rpx;
+  font-weight: 700;
+  padding: 14rpx 28rpx;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4rpx 16rpx rgba(6,182,212,0.3);
+  transition: all 0.2s ease;
+}
+
+.pool-claim-btn:active {
+  transform: scale(0.94);
+  box-shadow: 0 2rpx 8rpx rgba(6,182,212,0.2);
+}
+
+/* Tab 切换 */
+.cp-tab {
+  margin: 0 0 20rpx;
+  background: white;
+  border-radius: var(--radius-full);
+  padding: 7rpx;
+  display: flex;
+  box-shadow: var(--shadow-sm);
+  border: 1rpx solid #E2E8F0;
+}
+.tab-btn {
+  flex: 1; text-align: center; padding: 20rpx 0;
+  border-radius: var(--radius-full); transition: all 0.25s ease;
+}
+.tab-btn text { font-size: 27rpx; font-weight: 600; color: #64748B; }
+.tab-btn.tab-on {
+  background: linear-gradient(135deg, #06B6D4, #0891B2);
+  box-shadow: 0 6rpx 20rpx rgba(6,182,212,0.3);
+}
+.tab-btn.tab-on text { color: white; }
+
+/* 列表卡片 */
+.coupon-list-card { overflow: hidden; }
+
+.loading-box { display: flex; flex-direction: column; align-items: center; height: 300rpx; gap: 16rpx; }
+
+.empty-coupons { text-align: center; padding: 60rpx 20rpx; }
+.empty-coupons .empty-icon { font-size: 68rpx; margin-bottom: 18rpx; opacity: 0.45; }
+.empty-text { font-size: 29rpx; font-weight: 600; color: #334155; display: block; margin-bottom: 8rpx; }
+.empty-sub { font-size: 23rpx; color: #94A3B8; }
+
+/* ====== 优惠券卡片 ====== */
+.cp-grid { display: flex; flex-direction: column; gap: 20rpx; }
+
+.cp-card {
+  display: flex; align-items: stretch;
+  background: white; border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1rpx solid #F1F5F9;
+  min-height: 180rpx;
+}
+.cp-card.cp-expired { opacity: 0.4; filter: grayscale(80%); }
+.cp-card.cp-used { opacity: 0.35; filter: grayscale(100%); }
+
+/* ---- 左侧金额区 ---- */
+.cp-left-part {
+  width: 200rpx; min-width: 200rpx; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 28rpx 16rpx;
+  background: linear-gradient(145deg, #DBEAFE, #BFDBFE);
+  gap: 2rpx;
+}
+.cp-card.cp-expired .cp-left-part,
+.cp-card.cp-used .cp-left-part {
+  background: linear-gradient(145deg, #F1F5F9, #E2E8F0);
+}
+
+.cp-currency {
+  font-size: 26rpx; font-weight: 700; color: #2563EB;
+  line-height: 1;
+}
+.cp-card.cp-expired .cp-currency,
+.cp-card.cp-used .cp-currency { color: #94A3B8; }
+
+.cp-amount {
+  font-size: 52rpx; font-weight: 900; color: #2563EB;
+  font-family: 'SF Mono', monospace; line-height: 1.1;
+}
+.cp-card.cp-expired .cp-amount,
+.cp-card.cp-used .cp-amount { color: #94A3B8; }
+
+.cp-condition {
+  font-size: 20rpx; color: #0891B2; font-weight: 500;
+  margin-top: 6rpx;
+}
+.cp-card.cp-expired .cp-condition,
+.cp-card.cp-used .cp-condition { color: #94A3B8; }
+
+/* ---- 中间分割线 ---- */
+.cp-divider {
+  width: 0; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.cp-dash-line {
+  width: 2rpx; height: 70%;
+  border-left: 3rpx dashed #93C5FD;
+  border-style: dashed;
+}
+.cp-card.cp-expired .cp-dash-line,
+.cp-card.cp-used .cp-dash-line {
+  border-color: #CBD5E1;
+}
+
+/* ---- 右侧信息区 ---- */
+.cp-right-part {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 24rpx 22rpx;
+  gap: 6rpx; min-width: 0;
+  overflow: hidden;
+}
+
+.cr-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4rpx; gap: 12rpx;
+}
+
+.cp-name {
+  font-size: 27rpx; font-weight: 700; color: #0F172A;
+  letter-spacing: -0.01em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1; min-width: 0;
+}
+
+.cp-scope {
+  font-size: 22rpx; color: #64748B;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.cp-date {
+  font-size: 21rpx; color: #94A3B8;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---- 状态角标 ---- */
+.cp-status-badge {
+  flex-shrink: 0; padding: 5rpx 15rpx; border-radius: var(--radius-full);
+  font-size: 19rpx; font-weight: 700; white-space: nowrap;
+}
+.sb-active { background: rgba(16,185,129,0.1); color: #059669; }
+.sb-used { background: rgba(100,116,139,0.1); color: #475569; }
+.sb-expired { background: rgba(239,68,68,0.08); color: #DC2626; }
+
+/* 底部提示 */
+.coupon-tips {
+  display: flex; align-items: flex-start; gap: 10rpx;
+  padding: 22rpx 26rpx; margin-top: 20rpx;
+  background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+  border-radius: var(--radius-lg); border-left: 4rpx solid #2563EB;
+}
+.tips-icon { font-size: 28rpx; flex-shrink: 0; margin-top: 2rpx; }
+.tips-text { font-size: 23rpx; color: #1E40AF; line-height: 1.55; }

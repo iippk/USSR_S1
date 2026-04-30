@@ -1,0 +1,28 @@
+{
+  "name": "ussr_s1",
+  "version": "1.0.0",
+  "description": "**USSR_S** 是一款专为软件工程导论课程设计的无人自习室智能管理小程序，采用微信原生小程序 + 微信云开发技术栈开发，支持多人实时联网使用。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iippk/USSR_S1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/iippk/USSR_S1/issues"
+  },
+  "homepage": "https://github.com/iippk/USSR_S1#readme",
+  "dependencies": {
+    "@cloudbase/js-sdk": "^2.27.2"
+  }
+}

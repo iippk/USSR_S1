@@ -1,0 +1,12 @@
+{
+  "name": "testHttpCall",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "cloudbase fn deploy"
+  },
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

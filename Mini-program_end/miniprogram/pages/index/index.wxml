@@ -1,0 +1,173 @@
+<!--index.wxml - 首页控制台 · Ocean Blue Premium v5.0-->
+<view class="container index-page">
+  <!-- 维护模式横幅 -->
+  <view class="maintenance-banner" wx:if="{{maintenanceMode}}">
+    <text class="mb-icon">🔧</text>
+    <view class="mb-body">
+      <text class="mb-title">系统维护中</text>
+      <text class="mb-msg">{{maintenanceMessage}}</text>
+    </view>
+  </view>
+
+  <!-- 顶部用户卡片 - 玻璃态渐变 -->
+  <view class="card-gradient-blue user-card fade-up">
+    <view class="uc-glass-overlay"></view>
+    <view class="uc-content">
+      <view class="uc-top">
+        <view class="avatar-box" bindtap="handleLogin" wx:if="{{isLoggedIn}}">
+          <image class="uc-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+          <view class="avatar-ring"></view>
+        </view>
+        <view class="avatar-box login-trigger" wx:else bindtap="handleLogin">
+          <text class="login-avatar-icon">👤</text>
+          <view class="avatar-ring"></view>
+        </view>
+
+        <view class="uc-meta">
+          <view class="name-row" wx:if="{{isLoggedIn}}">
+            <text class="uc-name">{{userInfo.nickName}}</text>
+            <view class="status-dot-wrap"><view class="status-dot online"></view></view>
+          </view>
+          <view class="name-row" wx:else>
+            <text class="uc-name">未登录</text>
+            <text class="login-hint">点击登录</text>
+          </view>
+          <text class="uc-sub" wx:if="{{isLoggedIn}}">今日已学习 {{formattedTodayStudyTime}}</text>
+          <text class="uc-sub" wx:else>登录后查看学习数据</text>
+        </view>
+
+        <view class="uc-actions" wx:if="{{isLoggedIn}}">
+          <button class="btn-logout-mini" catchtap="handleLogout">退出</button>
+        </view>
+      </view>
+
+      <!-- 今日学时目标 -->
+      <view class="goal-row" wx:if="{{isLoggedIn}}">
+        <view class="goal-left">
+          <text class="goal-label">今日目标</text>
+          <text class="goal-time font-mono">{{formattedTodayStudyTime}}</text>
+          <text class="goal-slash">/</text>
+          <text class="goal-target font-mono">{{dailyGoalHours}}h</text>
+        </view>
+        <view class="goal-bar-track">
+          <view class="goal-bar-fill" style="width: {{dailyGoalHours > 0 ? Math.min(100, todayStudyTime / (dailyGoalHours * 3600) * 100) : 0}}%;"></view>
+        </view>
+        <button class="btn-goal-set" catchtap="openGoalModal">⚙️ 设置</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 实时数据仪表盘 -->
+  <view class="dashboard-section fade-up" style="animation-delay: 0.08s;">
+    <view class="ds-header">
+      <text class="ds-title">📊 实时数据</text>
+      <view class="refresh-chip" bindtap="refreshData">
+        <text class="refresh-icon">↻</text><text>刷新</text>
+      </view>
+    </view>
+
+    <view class="stats-grid-4">
+      <view class="stat-card sc-total">
+        <view class="sc-icon-wrap total">
+          <text class="sc-icon">🪑</text>
+        </view>
+        <text class="sc-num font-mono">{{seatCount}}</text>
+        <text class="sc-label">总座位</text>
+      </view>
+      <!-- <view class="stat-card sc-total">
+        <view class="sc-icon-wrap total">
+          <text class="sc-icon">🪑</text>
+        </view>
+        <text class="sc-num font-mono">{{seatCount}}</text>
+        <text class="sc-label">总座位</text>
+      </view> -->
+      <view class="stat-card sc-available">
+        <view class="sc-icon-wrap avail">
+          <text class="sc-icon">✅</text>
+        </view>
+        <text class="sc-num font-mono text-primary">{{availableSeatCount}}</text>
+        <text class="sc-label">空闲</text>
+      </view>
+      <view class="stat-card sc-using">
+        <view class="sc-icon-wrap using">
+          <text class="sc-icon">📖</text>
+        </view>
+        <text class="sc-num font-mono">{{usingSeatCount}}</text>
+        <text class="sc-label">使用中</text>
+      </view>
+      <view class="stat-card sc-fix">
+        <view class="sc-icon-wrap fix">
+          <text class="sc-icon">⚠️</text>
+        </view>
+        <text class="sc-num font-mono text-warn">{{fixSeatCount}}</text>
+        <text class="sc-label">维护中</text>
+      </view>
+    </view>
+
+  
+  </view>
+
+  <!-- 公告栏 -->
+  <view class="announcement-section fade-up" style="animation-delay: 0.16s;" wx:if="{{announcements.length > 0}}" bindtap="goToAnnouncementList">
+    <view class="ann-header">
+      <view class="ann-header-left">
+        <text class="ann-title">📢 系统公告</text>
+        <view class="ann-count-badge" wx:if="{{announcements.length > 1}}">{{announcements.length}}条</view>
+      </view>
+      <view class="ann-more">
+        <text>查看全部</text>
+        <text class="ann-arrow">›</text>
+      </view>
+    </view>
+    <view class="ann-latest" wx:if="{{announcements.length > 0}}">
+      <view class="ann-latest-tag" wx:if="{{announcements[0].isPinned}}">📌 置顶</view>
+      <text class="ann-latest-title">{{announcements[0].title}}</text>
+      <text class="ann-latest-content">{{announcements[0].content}}</text>
+      <view class="ann-latest-footer">
+        <text class="ann-latest-time">{{announcements[0].createdAt}}</text>
+        <text class="ann-latest-hint">点击查看详情 ›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 在线人数卡片 -->
+  <view class="online-card card-neu fade-up" style="animation-delay: 0.24s;">
+    <view class="oc-left">
+      <view class="online-pulse"></view>
+      <text class="oc-label">当前在线学习</text>
+    </view>
+    <view class="oc-right">
+      <text class="oc-num font-mono">{{onlineUserCount}}</text>
+      <text class="oc-unit">人</text>
+    </view>
+  </view>
+
+  <!-- 每日目标设置弹窗 -->
+  <view class="modal-overlay" wx:if="{{showGoalModal}}" bindtap="onGoalOverlayTap">
+    <view class="modal-content goal-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">🎯 设置每日学习目标</text>
+        <view class="modal-close" bindtap="closeGoalModal">×</view>
+      </view>
+      <view class="modal-body">
+        <text class="goal-desc">设置你每天的学习时长目标（小时）</text>
+        <view class="goal-options">
+          <view
+            class="goal-opt {{tempGoalHours === item ? 'goal-sel' : ''}}"
+            wx:for="{{[0.5, 1, 2, 3, 4, 5, 6, 8]}}"
+            wx:key="{{item}}"
+            catchtap="selectGoal"
+            data-hours="{{item}}"
+          >
+            <text class="goal-opt-num">{{item}}</text>
+            <text class="goal-opt-unit">小时</text>
+          </view>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-cancel" bindtap="closeGoalModal">取消</button>
+        <button class="btn-confirm" style="background: linear-gradient(135deg, #2563EB, #1D4ED8) !important; box-shadow: var(--shadow-blue) !important;" bindtap="saveGoal">保存目标</button>
+      </view>
+    </view>
+  </view>
+</view>

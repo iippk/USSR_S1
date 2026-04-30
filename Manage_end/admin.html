@@ -1,0 +1,2339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人自习室后台管理系统 v2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 420px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-container h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .login-container .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+            display: none;
+        }
+
+        .admin-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-left .version {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #4ade80;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e1e1e1;
+            padding: 0 24px;
+            gap: 4px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 28px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-sm {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .search-box {
+            padding: 8px 16px;
+            border: 2px solid #e1e1e1;
+            border-radius: 6px;
+            font-size: 13px;
+            width: 220px;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-select {
+            padding: 8px 14px;
+            border: 2px solid #e1e1e1;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 22px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .stat-card .number {
+            font-size: 34px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-card.revenue .number {
+            color: #dc3545;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-free {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-in-use {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 2px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 8px 14px;
+            border: 2px solid #e1e1e1;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 22px 28px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-footer {
+            padding: 18px 28px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+        }
+
+        .loading-spinner {
+            width: 56px;
+            height: 56px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 100000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            background: #28a745;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        .toast.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .empty-state .icon {
+            font-size: 52px;
+            margin-bottom: 12px;
+        }
+
+        .checkbox-cell {
+            width: 40px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 12px 16px;
+            font-size: 14px;
+        }
+
+        .detail-label {
+            color: #888;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #333;
+            word-break: break-all;
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 180px;
+            padding: 0 10px;
+        }
+
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bar {
+            width: 100%;
+            max-width: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px 6px 0 0;
+            min-height: 4px;
+            transition: height 0.5s ease;
+        }
+
+        .bar-label {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .log-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .log-time {
+            color: #999;
+            white-space: nowrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .log-type {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .log-type-release {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .log-type-add {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .log-type-edit {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .log-type-delete {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .log-type-order {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .log-desc {
+            color: #444;
+            flex: 1;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+        }
+
+        .heatmap-cell {
+            padding: 12px 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: default;
+            transition: transform 0.2s;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.05);
+        }
+
+        .seat-grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .seat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .seat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .seat-card.free {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .seat-card.in-use {
+            background: #cce5ff;
+            border-color: #007bff;
+        }
+
+        .seat-number {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .seat-status-text {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .seat-user {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .login-container {
+                margin: 50px auto;
+                padding: 24px;
+            }
+
+            .header {
+                padding: 18px 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .tabs {
+                padding: 0 12px;
+            }
+
+            .tab-btn {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+
+            .tab-content {
+                padding: 16px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            th,
+            td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card .number {
+                font-size: 24px;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 登录页面 -->
+    <div class="login-container" id="loginContainer">
+        <h1>🔐 后台管理登录</h1>
+        <p class="subtitle">无人自习室管理系统 v2.1（云函数实时同步）</p>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="form-group">
+            <label>管理员账号</label>
+            <input type="text" id="username" placeholder="请输入账号" autocomplete="username">
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" id="password" placeholder="请输入密码" autocomplete="current-password">
+        </div>
+        <button class="btn" onclick="handleLogin()">登 录</button>
+    </div>
+
+    <!-- 管理后台 -->
+    <div class="admin-container" id="adminContainer">
+        <div class="header">
+            <div class="header-left">
+                <h1>📚 无人自习室后台管理</h1>
+                <span class="version">v2.1 · 云函数实时同步版</span>
+            </div>
+            <div class="header-right">
+                <div class="sync-indicator" id="syncIndicator">
+                    <span class="sync-dot"></span>
+                    <span>已连接小程序端</span>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">退出登录</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('seats')">座位管理</button>
+            <button class="tab-btn" onclick="switchTab('orders')">订单记录</button>
+            <button class="tab-btn" onclick="switchTab('users')">用户管理</button>
+            <button class="tab-btn" onclick="switchTab('statistics')">数据统计</button>
+            <button class="tab-btn" onclick="switchTab('logs')">操作日志</button>
+        </div>
+
+        <!-- ========== 座位管理 ========== -->
+        <div class="tab-content active" id="seatsTab">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>总座位数</h3>
+                    <div class="number" id="totalSeats">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>空闲座位</h3>
+                    <div class="number" id="freeSeats">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>使用中</h3>
+                    <div class="number" id="inUseSeats">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>使用率</h3>
+                    <div class="number" id="usageRate">-</div>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button class="btn-sm btn-primary" onclick="openAddSeatModal()">+ 添加座位</button>
+                    <button class="btn-sm btn-success" onclick="batchReleaseSeats()">批量释放</button>
+                    <button class="btn-sm btn-outline" onclick="refreshSeats()">🔄 刷新</button>
+                </div>
+                <div class="toolbar-right">
+                    <select class="filter-select" id="seatStatusFilter" onchange="filterSeats()">
+                        <option value="">全部状态</option>
+                        <option value="空闲">空闲</option>
+                        <option value="使用中">使用中</option>
+                    </select>
+                    <input type="text" class="search-box" id="seatSearchInput" placeholder="搜索座位号..."
+                        oninput="filterSeats()">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell"><input type="checkbox" id="selectAllSeats"
+                                    onchange="toggleSelectAll()"></th>
+                            <th>座位号</th>
+                            <th>状态</th>
+                            <th>使用者ID</th>
+                            <th>订单号</th>
+                            <th>开始时间</th>
+                            <th>到期时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="seatsTableBody">
+                        <tr>
+                            <td colspan="8" class="empty-state">加载中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination" id="seatsPagination"></div>
+        </div>
+
+        <!-- ========== 订单记录 ========== -->
+        <div class="tab-content" id="ordersTab">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>总订单数</h3>
+                    <div class="number" id="totalOrders">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>今日订单</h3>
+                    <div class="number" id="todayOrders">-</div>
+                </div>
+                <div class="stat-card revenue">
+                    <h3>总收入</h3>
+                    <div class="number" id="totalRevenue">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>完成率</h3>
+                    <div class="number" id="orderCompleteRate">-</div>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button class="btn-sm btn-primary" onclick="exportOrdersCSV()">📥 导出CSV</button>
+                    <button class="btn-sm btn-outline" onclick="refreshOrders()">🔄 刷新</button>
+                </div>
+                <div class="toolbar-right">
+                    <select class="filter-select" id="orderStatusFilter" onchange="filterOrders()">
+                        <option value="">全部状态</option>
+                        <option value="created">待支付</option>
+                        <option value="paid">已支付</option>
+                        <option value="completed">已完成</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                    <input type="text" class="search-box" id="orderSearchInput" placeholder="搜索订单/用户..."
+                        oninput="filterOrders()">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>座位号</th>
+                            <th>用户ID</th>
+                            <th>套餐类型</th>
+                            <th>数量</th>
+                            <th>金额</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr>
+                            <td colspan="9" class="empty-state">加载中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination" id="ordersPagination"></div>
+        </div>
+
+        <!-- ========== 用户管理 ========== -->
+        <div class="tab-content" id="usersTab">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>总用户数</h3>
+                    <div class="number" id="totalUsers">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>活跃用户</h3>
+                    <div class="number" id="activeUsers">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>今日新增</h3>
+                    <div class="number" id="todayNewUsers">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>平均学习时长</h3>
+                    <div class="number" id="avgStudyTime">-</div>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-right" style="margin-left:auto;">
+                    <input type="text" class="search-box" id="userSearchInput" placeholder="搜索用户ID/昵称..."
+                        oninput="filterUsers()">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>用户ID</th>
+                            <th>昵称</th>
+                            <th>总学习时长</th>
+                            <th>订单数</th>
+                            <th>注册时间</th>
+                            <th>最后活跃</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">加载中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination" id="usersPagination"></div>
+        </div>
+
+        <!-- ========== 数据统计 ========== -->
+        <div class="tab-content" id="statisticsTab">
+            <div class="stats-grid">
+                <div class="stat-card revenue">
+                    <h3>今日收入</h3>
+                    <div class="number" id="todayRevenue">-</div>
+                </div>
+                <div class="stat-card revenue">
+                    <h3>本周收入</h3>
+                    <div class="number" id="weekRevenue">-</div>
+                </div>
+                <div class="stat-card revenue">
+                    <h3>本月收入</h3>
+                    <div class="number" id="monthRevenue">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>累计收入</h3>
+                    <div class="number" id="allRevenue">-</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📊 近7日收入趋势</div>
+                <div class="bar-chart" id="revenueChart"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">🪑 座位使用热力图</div>
+                <div class="heatmap-grid" id="seatHeatmap"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">⏰ 高峰时段分布（近7日）</div>
+                <div class="bar-chart" id="peakHourChart"></div>
+            </div>
+        </div>
+
+        <!-- ========== 操作日志 ========== -->
+        <div class="tab-content" id="logsTab">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button class="btn-sm btn-warning" onclick="clearLogs()">清空日志</button>
+                </div>
+                <div class="toolbar-right">
+                    <select class="filter-select" id="logTypeFilter" onchange="filterLogs()">
+                        <option value="">全部类型</option>
+                        <option value="release">释放座位</option>
+                        <option value="add">添加座位</option>
+                        <option value="edit">编辑座位</option>
+                        <option value="delete">删除座位</option>
+                        <option value="order">订单操作</option>
+                    </select>
+                </div>
+            </div>
+            <div class="log-list" id="logList">
+                <div class="empty-state">
+                    <div class="icon">📝</div>暂无操作日志
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑座位模态框 -->
+    <div class="modal-overlay" id="seatModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="seatModalTitle">添加座位</h2>
+                <button class="modal-close" onclick="closeSeatModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editSeatId">
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label>座位号 *</label>
+                        <input type="text" id="seatNumberInput" placeholder="例：A01, B02, 001">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>区域</label>
+                        <input type="text" id="seatAreaInput" placeholder="例：安静区、讨论区">
+                    </div>
+                    <div class="form-group">
+                        <label>座位类型</label>
+                        <select id="seatTypeInput" class="filter-select" style="width:100%;">
+                            <option value="normal">普通座</option>
+                            <option value="vip">VIP座</option>
+                            <option value="window">窗边座</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label>备注</label>
+                        <input type="text" id="seatRemarkInput" placeholder="可选备注信息">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-outline" onclick="closeSeatModal()">取消</button>
+                <button class="btn-sm btn-primary" onclick="saveSeat()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单详情模态框 -->
+    <div class="modal-overlay" id="orderDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>订单详情</h2>
+                <button class="modal-close" onclick="closeOrderDetailModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid" id="orderDetailContent"></div>
+            </div>
+            <div class="modal-footer" id="orderDetailFooter"></div>
+        </div>
+    </div>
+
+    <!-- 用户详情模态框 -->
+    <div class="modal-overlay" id="userDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>用户详情</h2>
+                <button class="modal-close" onclick="closeUserDetailModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid" id="userDetailContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-outline" onclick="closeUserDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- CloudBase Web SDK - 腾讯官方CDN -->
+    <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.27.2/cloudbase.full.js"></script>
+    <script>
+        // ==================== 配置信息 ====================
+        const APP_ID = 'wxd04fb5cb7b521596';
+        const ENV_ID = 'cloud1-6gwfun5cc8a627e8';
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin123';
+        const PAGE_SIZE = 15;
+
+        let app = null;
+        let db = null;
+        let auth = null;
+
+        let allSeats = [];
+        let filteredSeats = [];
+        let seatsPage = 1;
+
+        let allOrders = [];
+        let filteredOrders = [];
+        let ordersPage = 1;
+
+        let allUsers = [];
+        let filteredUsers = [];
+        let usersPage = 1;
+
+        let operationLogs = [];
+
+        // ==================== 云开发初始化 ====================
+        async function initCloudBase() {
+            try {
+                if (typeof cloudbase === 'undefined') {
+                    throw new Error('CloudBase SDK未加载完成，请刷新页面重试');
+                }
+                app = cloudbase.init({ env: ENV_ID });
+                auth = app.auth();
+                await auth.signInAnonymously();
+                db = app.database();
+                console.log('✅ 云开发初始化成功');
+                return true;
+            } catch (error) {
+                console.error('❌ 云开发初始化失败:', error);
+                showToast('云开发初始化失败: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // ==================== 登录功能 ====================
+        async function handleLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('errorMessage');
+
+            if (!username || !password) {
+                errorMsg.textContent = '请输入账号和密码';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+                errorMsg.textContent = '账号或密码错误';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            showLoading(true);
+            errorMsg.style.display = 'none';
+
+            const success = await initCloudBase();
+
+            if (success) {
+                localStorage.setItem('isAdminLoggedIn', 'true');
+                localStorage.setItem('loginTime', new Date().toISOString());
+                showToast('✅ 登录成功！', 'success');
+                showAdminPanel();
+                await loadSeatsData();
+                startAutoRefresh();
+            }
+
+            showLoading(false);
+        }
+
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && document.getElementById('loginContainer').style.display !== 'none') {
+                handleLogin();
+            }
+        });
+
+        // ==================== 退出登录 ====================
+        function handleLogout() {
+            if (confirm('确定要退出登录吗？')) {
+                stopAutoRefresh();
+                localStorage.removeItem('isAdminLoggedIn');
+                localStorage.removeItem('loginTime');
+                document.getElementById('loginContainer').style.display = 'block';
+                document.getElementById('adminContainer').style.display = 'none';
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                showToast('已退出登录', 'success');
+            }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('adminContainer').style.display = 'block';
+        }
+
+        // ==================== Tab切换 ====================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            switch (tabName) {
+                case 'seats': loadSeatsData(); break;
+                case 'orders': loadOrdersData(); break;
+                case 'users': loadUsersData(); break;
+                case 'statistics': loadStatistics(); break;
+                case 'logs': renderLogs(); break;
+            }
+        }
+
+        // ==================== 自动刷新 ====================
+        let autoRefreshTimer = null;
+
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            autoRefreshTimer = setInterval(async () => {
+                try {
+                    await refreshCurrentTabData();
+                } catch (e) { }
+            }, 30000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+                autoRefreshTimer = null;
+            }
+        }
+
+        async function refreshCurrentTabData() {
+            const activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return;
+            const tabId = activeTab.id;
+            if (tabId === 'seatsTab') await loadSeatsData(true);
+            else if (tabId === 'ordersTab') await loadOrdersData(true);
+            else if (tabId === 'usersTab') await loadUsersData(true);
+        }
+
+        // ==================== 工具函数 ====================
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const h = String(date.getHours()).padStart(2, '0');
+            const min = String(date.getMinutes()).padStart(2, '0');
+            const s = String(date.getSeconds()).padStart(2, '0');
+            return `${y}-${m}-${d} ${h}:${min}:${s}`;
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds || seconds <= 0) return '0分钟';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            if (hours > 0) return `${hours}小时${minutes}分钟`;
+            return `${minutes}分钟`;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+
+        function addLog(type, desc) {
+            const log = {
+                time: new Date().toISOString(),
+                type: type,
+                desc: desc
+            };
+            operationLogs.unshift(log);
+            if (operationLogs.length > 500) operationLogs.pop();
+            saveLogsToStorage();
+        }
+
+        function saveLogsToStorage() {
+            try {
+                localStorage.setItem('adminOperationLogs', JSON.stringify(operationLogs));
+            } catch (e) { }
+        }
+
+        function loadLogsFromStorage() {
+            try {
+                const saved = localStorage.getItem('adminOperationLogs');
+                if (saved) operationLogs = JSON.parse(saved);
+            } catch (e) { }
+        }
+
+        function renderLogs() {
+            const filterVal = document.getElementById('logTypeFilter')?.value || '';
+            let logs = operationLogs;
+            if (filterVal) {
+                logs = logs.filter(l => l.type === filterVal);
+            }
+            const container = document.getElementById('logList');
+            if (logs.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">📝</div>暂无操作日志</div>';
+                return;
+            }
+            container.innerHTML = logs.map(log => `
+                <div class="log-item">
+                    <span class="log-time">${formatDate(log.time)}</span>
+                    <span class="log-type log-type-${log.type}">${getLogTypeName(log.type)}</span>
+                    <span class="log-desc">${log.desc}</span>
+                </div>
+            `).join('');
+        }
+
+        function getLogTypeName(type) {
+            const map = { release: '释放', add: '添加', edit: '编辑', delete: '删除', order: '订单' };
+            return map[type] || type;
+        }
+
+        function filterLogs() { renderLogs(); }
+
+        function clearLogs() {
+            if (confirm('确定要清空所有操作日志吗？')) {
+                operationLogs = [];
+                saveLogsToStorage();
+                renderLogs();
+                showToast('日志已清空', 'success');
+            }
+        }
+
+        function renderPagination(containerId, totalItems, currentPage, onPageChange) {
+            const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+            const container = document.getElementById(containerId);
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            let html = `<button class="page-btn" ${currentPage <= 1 ? 'disabled' : ''} onclick="${onPageChange}(${currentPage - 1})">上一页</button>`;
+            const maxVisible = 7;
+            let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let end = Math.min(totalPages, start + maxVisible - 1);
+            if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible + 1);
+            for (let i = start; i <= end; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="${onPageChange}(${i})">${i}</button>`;
+            }
+            html += `<button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="${onPageChange}(${currentPage + 1})">下一页</button>`;
+            html += `<span style="margin-left:10px;color:#888;font-size:13px;">共 ${totalItems} 条 / 第 ${currentPage}/${totalPages} 页</span>`;
+            container.innerHTML = html;
+        }
+
+        function showSyncIndicator() {
+            const indicator = document.getElementById('syncIndicator');
+            indicator.innerHTML = '<span class="sync-dot" style="background:#4ade80;"></span><span>✓ 已同步至小程序端</span>';
+            indicator.style.background = 'rgba(74,222,128,0.2)';
+            setTimeout(() => {
+                indicator.innerHTML = '<span class="sync-dot"></span><span>已连接小程序端</span>';
+                indicator.style.background = 'rgba(255,255,255,0.15)';
+            }, 3000);
+        }
+
+        // ================================================================
+        //  座位管理模块 - 完整CRUD + 实时同步
+        // ================================================================
+
+        async function loadSeatsData(silent = false) {
+            if (!silent) showLoading(true);
+            try {
+                const seatsRes = await db.collection('seats').get();
+                allSeats = seatsRes.data || [];
+                updateSeatStats();
+                filterSeats();
+            } catch (error) {
+                console.error('加载座位数据失败:', error);
+                if (!silent) showToast('加载座位数据失败: ' + error.message, 'error');
+            }
+            if (!silent) showLoading(false);
+        }
+
+        function updateSeatStats() {
+            const total = allSeats.length;
+            const free = allSeats.filter(s => s.status === '空闲' || s.status === 'free').length;
+            const inUse = allSeats.filter(s => s.status === '使用中').length;
+            const rate = total > 0 ? ((inUse / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('totalSeats').textContent = total;
+            document.getElementById('freeSeats').textContent = free;
+            document.getElementById('inUseSeats').textContent = inUse;
+            document.getElementById('usageRate').textContent = rate + '%';
+        }
+
+        function filterSeats() {
+            const statusFilter = document.getElementById('seatStatusFilter').value;
+            const searchText = document.getElementById('seatSearchInput').value.toLowerCase().trim();
+
+            filteredSeats = allSeats.filter(seat => {
+                if (statusFilter && seat.status !== statusFilter) return false;
+                if (searchText && !(seat.seatNumber || '').toLowerCase().includes(searchText)) return false;
+                return true;
+            });
+
+            filteredSeats.sort((a, b) => {
+                const numA = parseInt(a.seatNumber) || 0;
+                const numB = parseInt(b.seatNumber) || 0;
+                return numA - numB;
+            });
+
+            seatsPage = 1;
+            renderSeatsTable();
+        }
+
+        function renderSeatsTable() {
+            const tbody = document.getElementById('seatsTableBody');
+            const start = (seatsPage - 1) * PAGE_SIZE;
+            const pageData = filteredSeats.slice(start, start + PAGE_SIZE);
+
+            if (filteredSeats.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="icon">🪑</div>暂无座位数据</td></tr>';
+                document.getElementById('seatsPagination').innerHTML = '';
+                return;
+            }
+
+            tbody.innerHTML = pageData.map(seat => `
+                <tr>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="seat-checkbox" value="${seat._id}" ${seat.status !== '使用中' ? 'disabled' : ''}>
+                    </td>
+                    <td><strong>${seat.seatNumber || '-'}</strong></td>
+                    <td>
+                        <span class="status-badge ${seat.status === '使用中' ? 'status-in-use' : 'status-free'}">
+                            ${seat.status || '未知'}
+                        </span>
+                    </td>
+                    <td>${seat.userId ? seat.userId.substring(0, 14) + '...' : '-'}</td>
+                    <td>${seat.orderId ? seat.orderId.substring(0, 12) + '...' : '-'}</td>
+                    <td>${seat.startedAt ? formatDate(seat.startedAt) : '-'}</td>
+                    <td>${seat.expireAt ? formatDate(seat.expireAt) : '-'}</td>
+                    <td>
+                        ${seat.status === '使用中'
+                    ? `<button class="action-btn btn-danger" onclick="forceReleaseSeat('${seat._id}','${seat.seatNumber}')">强制释放</button>`
+                    : `<button class="action-btn btn-warning" onclick="openEditSeatModal('${seat._id}')">编辑</button>
+                              <button class="action-btn btn-danger" onclick="deleteSeat('${seat._id}','${seat.seatNumber}')">删除</button>`}
+                    </td>
+                </tr>
+            `).join('');
+
+            renderPagination('seatsPagination', filteredSeats.length, seatsPage, 'goToSeatPage');
+        }
+
+        function goToSeatPage(page) {
+            seatsPage = page;
+            renderSeatsTable();
+        }
+
+        function toggleSelectAll() {
+            const checked = document.getElementById('selectAllSeats').checked;
+            document.querySelectorAll('.seat-checkbox:not(:disabled)').forEach(cb => cb.checked = checked);
+        }
+
+        function refreshSeats() { loadSeatsData(); }
+
+        // --- 强制释放座位（通过云函数调用，确保小程序端实时响应）---
+        async function forceReleaseSeat(seatId, seatNumber) {
+            if (!confirm(`确定要强制释放座位 ${seatNumber} 吗？\n\n此操作将通过服务端云函数执行，中断该用户的使用并保存学习记录，小程序端将实时响应。`)) {
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                console.log(`[admin] 🚀 调用云函数 adminOperations 强制释放座位: ${seatId} (${seatNumber})`);
+
+                const res = await app.callFunction({
+                    name: 'adminOperations',
+                    data: {
+                        action: 'forceReleaseSeat',
+                        seatId: seatId,
+                        source: 'admin_panel'
+                    }
+                });
+
+                console.log('[admin] 云函数返回:', JSON.stringify(res.result));
+
+                if (res.result && res.result.success) {
+                    addLog('release', `管理员通过云函数强制释放座位 ${seatNumber}`);
+                    showToast(`✅ 座位 ${seatNumber} 已成功释放（${res.result.message || '已同步至小程序端'}）`, 'success');
+                    showSyncIndicator();
+                } else if (res.result && res.result.status && res.result.status !== '使用中') {
+                    showToast(`座位 ${seatNumber} 状态已是「${res.result.status}」，无需释放`, 'warning');
+                } else {
+                    throw new Error(res.result?.error || '云函数返回异常');
+                }
+
+                await loadSeatsData();
+
+            } catch (error) {
+                console.error('强制释放座位失败:', error);
+                showToast('强制释放失败: ' + error.message, 'error');
+            }
+
+            showLoading(false);
+        }
+
+        // --- 批量释放（逐个调用云函数）---
+        async function batchReleaseSeats() {
+            const checkboxes = document.querySelectorAll('.seat-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showToast('请先勾选需要释放的座位', 'warning');
+                return;
+            }
+
+            if (!confirm(`确定要批量释放选中的 ${checkboxes.length} 个座位吗？\n\n此操作将通过服务端云函数逐一执行，每个座位的变更都会同步至小程序端。`)) {
+                return;
+            }
+
+            showLoading(true);
+            let successCount = 0;
+            let failCount = 0;
+
+            const seatIdsToRelease = [];
+            for (const cb of checkboxes) {
+                seatIdsToRelease.push(cb.value);
+            }
+
+            try {
+                console.log(`[admin] 🚀 批量释放 - 调用云函数 adminOperations 释放 ${seatIdsToRelease.length} 个座位`);
+
+                const res = await app.callFunction({
+                    name: 'adminOperations',
+                    data: {
+                        action: 'batchReleaseSeats',
+                        seatIds: seatIdsToRelease,
+                        source: 'admin_batch'
+                    }
+                });
+
+                console.log('[admin] 云函数返回:', JSON.stringify(res.result));
+
+                if (res.result && res.result.success) {
+                    successCount = res.result.releasedCount || 0;
+                    failCount = res.result.failedCount || 0;
+                    console.log(`[admin] ✓ 批量释放完成：成功${successCount}个，失败${failCount}个`);
+                } else {
+                    throw new Error(res.result?.error || '云函数返回异常');
+                }
+            } catch (e) {
+                failCount = seatIdsToRelease.length;
+                console.error('[admin] ✗ 批量释放调用云函数失败:', e.message);
+            }
+
+            addLog('release', `批量释放座位（通过云函数）：成功${successCount}个，失败${failCount}个`);
+            showToast(`批量释放完成：成功 ${successCount} 个，失败 ${failCount} 个`, successCount > 0 ? 'success' : 'error');
+            if (successCount > 0) showSyncIndicator();
+            await loadSeatsData();
+            showLoading(false);
+        }
+
+        // --- 添加座位 ---
+        function openAddSeatModal() {
+            document.getElementById('seatModalTitle').textContent = '添加座位';
+            document.getElementById('editSeatId').value = '';
+            document.getElementById('seatNumberInput').value = '';
+            document.getElementById('seatAreaInput').value = '';
+            document.getElementById('seatTypeInput').value = 'normal';
+            document.getElementById('seatRemarkInput').value = '';
+            document.getElementById('seatModal').classList.add('show');
+        }
+
+        function openEditSeatModal(seatId) {
+            const seat = allSeats.find(s => s._id === seatId);
+            if (!seat) return;
+
+            document.getElementById('seatModalTitle').textContent = '编辑座位';
+            document.getElementById('editSeatId').value = seatId;
+            document.getElementById('seatNumberInput').value = seat.seatNumber || '';
+            document.getElementById('seatAreaInput').value = seat.area || '';
+            document.getElementById('seatTypeInput').value = seat.seatType || 'normal';
+            document.getElementById('seatRemarkInput').value = seat.remark || '';
+            document.getElementById('seatModal').classList.add('show');
+        }
+
+        function closeSeatModal() {
+            document.getElementById('seatModal').classList.remove('show');
+        }
+
+        async function saveSeat() {
+            const editId = document.getElementById('editSeatId').value;
+            const seatNumber = document.getElementById('seatNumberInput').value.trim();
+            const area = document.getElementById('seatAreaInput').value.trim();
+            const seatType = document.getElementById('seatTypeInput').value;
+            const remark = document.getElementById('seatRemarkInput').value.trim();
+
+            if (!seatNumber) {
+                showToast('请输入座位号', 'warning');
+                return;
+            }
+
+            const now = new Date();
+
+            if (editId) {
+                // 编辑
+                await db.collection('seats').doc(editId).update({
+                    data: { seatNumber, area, seatType, remark, updatedAt: now }
+                });
+                addLog('edit', `编辑座位：${seatNumber}`);
+                showToast(`座位 ${seatNumber} 已更新`, 'success');
+            } else {
+                // 新增
+                const duplicate = allSeats.find(s => s.seatNumber === seatNumber);
+                if (duplicate) {
+                    showToast('该座位号已存在', 'warning');
+                    return;
+                }
+                await db.collection('seats').add({
+                    data: {
+                        seatNumber,
+                        status: '空闲',
+                        area: area || '',
+                        seatType: seatType || 'normal',
+                        remark: remark || '',
+                        userId: '',
+                        openid: '',
+                        orderId: '',
+                        reservedAt: null,
+                        startedAt: null,
+                        expireAt: null,
+                        remainingTime: 0,
+                        autoReleaseAt: null,
+                        hardwareStatus: { light: false, airConditioner: false, door: false },
+                        createdAt: now,
+                        updatedAt: now
+                    }
+                });
+                addLog('add', `添加新座位：${seatNumber}`);
+                showToast(`座位 ${seatNumber} 已添加`, 'success');
+            }
+
+            closeSeatModal();
+            await loadSeatsData();
+        }
+
+        // --- 删除座位 ---
+        async function deleteSeat(seatId, seatNumber) {
+            if (!confirm(`确定要删除座位 ${seatNumber} 吗？\n\n此操作不可恢复！`)) return;
+
+            showLoading(true);
+
+            try {
+                const seatRes = await db.collection('seats').doc(seatId).get();
+                const seat = seatRes.data;
+
+                if (seat && seat.status === '使用中') {
+                    showToast('该座位正在使用中，请先释放再删除', 'warning');
+                    showLoading(false);
+                    return;
+                }
+
+                await db.collection('seats').doc(seatId).remove();
+                addLog('delete', `删除座位：${seatNumber}`);
+                showToast(`座位 ${seatNumber} 已删除`, 'success');
+                await loadSeatsData();
+            } catch (error) {
+                showToast('删除失败: ' + error.message, 'error');
+            }
+
+            showLoading(false);
+        }
+
+        // ================================================================
+        //  订单管理模块
+        // ================================================================
+
+        async function loadOrdersData(silent = false) {
+            if (!silent) showLoading(true);
+            try {
+                const ordersRes = await db.collection('orders')
+                    .orderBy('createdAt', 'desc')
+                    .limit(500)
+                    .get();
+                allOrders = ordersRes.data || [];
+                updateOrderStats();
+                filterOrders();
+            } catch (error) {
+                console.error('加载订单数据失败:', error);
+                if (!silent) showToast('加载订单数据失败: ' + error.message, 'error');
+            }
+            if (!silent) showLoading(false);
+        }
+
+        function updateOrderStats() {
+            const total = allOrders.length;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayCount = allOrders.filter(o => new Date(o.createdAt) >= today).length;
+            const paidOrders = allOrders.filter(o => o.status === 'paid' || o.status === 'completed');
+            const revenue = paidOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+            const completed = allOrders.filter(o => o.status === 'completed').length;
+            const completeRate = total > 0 ? ((completed / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('totalOrders').textContent = total;
+            document.getElementById('todayOrders').textContent = todayCount;
+            document.getElementById('totalRevenue').textContent = '¥' + revenue.toFixed(2);
+            document.getElementById('orderCompleteRate').textContent = completeRate + '%';
+        }
+
+        function filterOrders() {
+            const statusFilter = document.getElementById('orderStatusFilter').value;
+            const searchText = document.getElementById('orderSearchInput').value.toLowerCase().trim();
+
+            filteredOrders = allOrders.filter(order => {
+                if (statusFilter && order.status !== statusFilter) return false;
+                if (searchText) {
+                    const searchIn = (order._id + '' + (order.seatNumber || '') + '' + (order.userId || '')).toLowerCase();
+                    if (!searchIn.includes(searchText)) return false;
+                }
+                return true;
+            });
+
+            ordersPage = 1;
+            renderOrdersTable();
+        }
+
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            const start = (ordersPage - 1) * PAGE_SIZE;
+            const pageData = filteredOrders.slice(start, start + PAGE_SIZE);
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><div class="icon">📋</div>暂无订单数据</td></tr>';
+                document.getElementById('ordersPagination').innerHTML = '';
+                return;
+            }
+
+            const planMap = { hour: '小时', day: '天', week: '周' };
+            const statusMap = {
+                created: '<span class="status-badge status-pending">待支付</span>',
+                paid: '<span class="status-badge status-in-use">已支付</span>',
+                completed: '<span class="status-badge status-free">已完成</span>',
+                cancelled: '<span class="status-badge status-cancelled">已取消</span>'
+            };
+
+            tbody.innerHTML = pageData.map(order => `
+                <tr>
+                    <td>${order._id ? order._id.substring(0, 14) + '...' : '-'}</td>
+                    <td><strong>${order.seatNumber || '-'}</strong></td>
+                    <td>${order.userId ? order.userId.substring(0, 14) + '...' : '-'}</td>
+                    <td>${planMap[order.planType] || order.planType || '-'}</td>
+                    <td>${order.quantity || '-'}</td>
+                    <td><strong style="color:#dc3545;">¥${(order.totalPrice || 0).toFixed(2)}</strong></td>
+                    <td>${statusMap[order.status] || order.status}</td>
+                    <td>${order.createdAt ? formatDate(order.createdAt) : '-'}</td>
+                    <td>
+                        <button class="action-btn btn-primary" onclick="viewOrderDetail('${order._id}')">详情</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            renderPagination('ordersPagination', filteredOrders.length, ordersPage, 'goToOrderPage');
+        }
+
+        function goToOrderPage(page) {
+            ordersPage = page;
+            renderOrdersTable();
+        }
+
+        function refreshOrders() { loadOrdersData(); }
+
+        function viewOrderDetail(orderId) {
+            const order = allOrders.find(o => o._id === orderId);
+            if (!order) return;
+
+            const planMap = { hour: '小时套餐', day: '天套餐', week: '周套餐' };
+            const statusMap = { created: '待支付', paid: '已支付/使用中', completed: '已完成', cancelled: '已取消' };
+
+            document.getElementById('orderDetailContent').innerHTML = `
+                <div class="detail-label">订单编号</div>
+                <div class="detail-value">${order._id}</div>
+                <div class="detail-label">座位号</div>
+                <div class="detail-value">${order.seatNumber || '-'}</div>
+                <div class="detail-label">用户ID</div>
+                <div class="detail-value">${order.userId || '-'}</div>
+                <div class="detail-label">套餐类型</div>
+                <div class="detail-value">${planMap[order.planType] || order.planType || '-'}</div>
+                <div class="detail-label">数量</div>
+                <div class="detail-value">${order.quantity || '-'}</div>
+                <div class="detail-label">单价</div>
+                <div class="detail-value">¥${(order.unitPrice || 0).toFixed(2)}</div>
+                <div class="detail-label">总价</div>
+                <div class="detail-value" style="color:#dc3545;font-weight:700;font-size:16px;">¥${(order.totalPrice || 0).toFixed(2)}</div>
+                <div class="detail-label">状态</div>
+                <div class="detail-value">${statusMap[order.status] || order.status}</div>
+                <div class="detail-label">创建时间</div>
+                <div class="detail-value">${order.createdAt ? formatDate(order.createdAt) : '-'}</div>
+                <div class="detail-label">到期时间</div>
+                <div class="detail-value">${order.expireAt ? formatDate(order.expireAt) : '-'}</div>
+                <div class="detail-label">完成时间</div>
+                <div class="detail-value">${order.completedAt ? formatDate(order.completedAt) : '-'}</div>
+            `;
+
+            let footerHtml = '<button class="btn-sm btn-outline" onclick="closeOrderDetailModal()">关闭</button>';
+
+            if (order.status === 'paid') {
+                footerHtml += `<button class="btn-sm btn-success" onclick="completeOrder('${order._id}')">标记完成</button>`;
+                footerHtml += `<button class="btn-sm btn-danger" onclick="cancelOrder('${order._id}')">取消订单</button>`;
+            } else if (order.status === 'created') {
+                footerHtml += `<button class="btn-sm btn-danger" onclick="cancelOrder('${order._id}')">取消订单</button>`;
+            }
+
+            document.getElementById('orderDetailFooter').innerHTML = footerHtml;
+            document.getElementById('orderDetailModal').classList.add('show');
+        }
+
+        function closeOrderDetailModal() {
+            document.getElementById('orderDetailModal').classList.remove('show');
+        }
+
+        async function completeOrder(orderId) {
+            if (!confirm('确定要将此订单标记为已完成吗？')) return;
+            showLoading(true);
+            try {
+                const now = new Date();
+                await db.collection('orders').doc(orderId).update({
+                    data: { status: 'completed', completedAt: now, updatedAt: now }
+                });
+                addLog('order', `手动完成订单：${orderId.substring(0, 12)}...`);
+                showToast('订单已标记为完成', 'success');
+                closeOrderDetailModal();
+                await loadOrdersData();
+            } catch (error) {
+                showToast('操作失败: ' + error.message, 'error');
+            }
+            showLoading(false);
+        }
+
+        async function cancelOrder(orderId) {
+            if (!confirm('确定要取消此订单吗？')) return;
+            showLoading(true);
+            try {
+                const now = new Date();
+                await db.collection('orders').doc(orderId).update({
+                    data: { status: 'cancelled', cancelledAt: now, updatedAt: now }
+                });
+                addLog('order', `取消订单：${orderId.substring(0, 12)}...`);
+                showToast('订单已取消', 'success');
+                closeOrderDetailModal();
+                await loadOrdersData();
+            } catch (error) {
+                showToast('操作失败: ' + error.message, 'error');
+            }
+            showLoading(false);
+        }
+
+        function exportOrdersCSV() {
+            if (filteredOrders.length === 0) {
+                showToast('没有可导出的数据', 'warning');
+                return;
+            }
+
+            const headers = ['订单号', '座位号', '用户ID', '套餐类型', '数量', '单价', '总价', '状态', '创建时间', '到期时间'];
+            const rows = filteredOrders.map(o => [
+                o._id || '', o.seatNumber || '', o.userId || '', o.planType || '',
+                o.quantity || '', o.unitPrice || 0, o.totalPrice || 0, o.status || '',
+                o.createdAt ? formatDate(o.createdAt) : '', o.expireAt ? formatDate(o.expireAt) : ''
+            ]);
+
+            let csv = '\uFEFF' + headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(v => `"${v}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `订单导出_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('订单数据已导出', 'success');
+            addLog('order', `导出订单CSV：共${filteredOrders.length}条`);
+        }
+
+        // ================================================================
+        //  用户管理模块
+        // ================================================================
+
+        async function loadUsersData(silent = false) {
+            if (!silent) showLoading(true);
+            try {
+                const usersRes = await db.collection('users')
+                    .orderBy('createdAt', 'desc')
+                    .limit(300)
+                    .get();
+                allUsers = usersRes.data || [];
+                updateUserStats();
+                filterUsers();
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+                if (!silent) showToast('加载用户数据失败: ' + error.message, 'error');
+            }
+            if (!silent) showLoading(false);
+        }
+
+        function updateUserStats() {
+            const total = allUsers.length;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayNew = allUsers.filter(u => u.createdAt && new Date(u.createdAt) >= today).length;
+            const active = allUsers.filter(u => u.totalStudyTime && u.totalStudyTime > 0).length;
+            const avgTime = allUsers.length > 0
+                ? Math.round(allUsers.reduce((sum, u) => sum + (u.totalStudyTime || 0), 0) / allUsers.length / 60)
+                : 0;
+
+            document.getElementById('totalUsers').textContent = total;
+            document.getElementById('activeUsers').textContent = active;
+            document.getElementById('todayNewUsers').textContent = todayNew;
+            document.getElementById('avgStudyTime').textContent = avgTime > 0 ? avgTime + '分钟' : '-';
+        }
+
+        function filterUsers() {
+            const searchText = document.getElementById('userSearchInput').value.toLowerCase().trim();
+            filteredUsers = allUsers.filter(user => {
+                if (!searchText) return true;
+                const searchIn = ((user._openid || '') + ' ' + (user.nickName || '')).toLowerCase();
+                return searchIn.includes(searchText);
+            });
+            usersPage = 1;
+            renderUsersTable();
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            const start = (usersPage - 1) * PAGE_SIZE;
+            const pageData = filteredUsers.slice(start, start + PAGE_SIZE);
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="icon">👥</div>暂无用户数据</td></tr>';
+                document.getElementById('usersPagination').innerHTML = '';
+                return;
+            }
+
+            tbody.innerHTML = pageData.map(user => `
+                <tr>
+                    <td>${user._openid ? user._openid.substring(0, 14) + '...' : '-'}</td>
+                    <td>${user.nickName || '未设置昵称'}</td>
+                    <td>${formatDuration(user.totalStudyTime)}</td>
+                    <td>${user.orderCount || '-'}</td>
+                    <td>${user.createdAt ? formatDate(user.createdAt) : '-'}</td>
+                    <td>${user.lastActiveAt ? formatDate(user.lastActiveAt) : '-'}</td>
+                    <td>
+                        <button class="action-btn btn-primary" onclick="viewUserDetail('${user._openid}')">详情</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            renderPagination('usersPagination', filteredUsers.length, usersPage, 'goToUserPage');
+        }
+
+        function goToUserPage(page) {
+            usersPage = page;
+            renderUsersTable();
+        }
+
+        function viewUserDetail(openid) {
+            const user = allUsers.find(u => u._openid === openid);
+            if (!user) return;
+
+            document.getElementById('userDetailContent').innerHTML = `
+                <div class="detail-label">用户OpenID</div>
+                <div class="detail-value">${user._openid || '-'}</div>
+                <div class="detail-label">昵称</div>
+                <div class="detail-value">${user.nickName || '未设置'}</div>
+                <div class="detail-label">头像URL</div>
+                <div class="detail-value">${user.avatarUrl || '-'}</div>
+                <div class="detail-label">总学习时长</div>
+                <div class="detail-value" style="font-weight:700;color:#667eea;">${formatDuration(user.totalStudyTime)}</div>
+                <div class="detail-label">订单总数</div>
+                <div class="detail-value">${user.orderCount || '-'}</div>
+                <div class="detail-label">注册时间</div>
+                <div class="detail-value">${user.createdAt ? formatDate(user.createdAt) : '-'}</div>
+                <div class="detail-label">最后活跃</div>
+                <div class="detail-value">${user.lastActiveAt ? formatDate(user.lastActiveAt) : '-'}</div>
+            `;
+            document.getElementById('userDetailModal').classList.add('show');
+        }
+
+        function closeUserDetailModal() {
+            document.getElementById('userDetailModal').classList.remove('show');
+        }
+
+        // ================================================================
+        //  数据统计模块
+        // ================================================================
+
+        async function loadStatistics() {
+            showLoading(true);
+            try {
+                const ordersRes = await db.collection('orders')
+                    .orderBy('createdAt', 'desc')
+                    .limit(1000)
+                    .get();
+                const orders = ordersRes.data || [];
+
+                const seatsRes = await db.collection('seats').get();
+                const seats = seatsRes.data || [];
+
+                calcRevenueStats(orders);
+                renderRevenueChart(orders);
+                renderSeatHeatmap(seats);
+                renderPeakHourChart(orders);
+
+            } catch (error) {
+                console.error('加载数据统计失败:', error);
+                showToast('统计数据加载失败: ' + error.message, 'error');
+            }
+            showLoading(false);
+        }
+
+        function calcRevenueStats(orders) {
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const weekStart = new Date(todayStart);
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            const paidOrCompleted = orders.filter(o => o.status === 'paid' || o.status === 'completed');
+
+            const todayRev = paidOrCompleted.filter(o => new Date(o.createdAt) >= todayStart)
+                .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+            const weekRev = paidOrCompleted.filter(o => new Date(o.createdAt) >= weekStart)
+                .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+            const monthRev = paidOrCompleted.filter(o => new Date(o.createdAt) >= monthStart)
+                .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+            const allRev = paidOrCompleted.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+
+            document.getElementById('todayRevenue').textContent = '¥' + todayRev.toFixed(2);
+            document.getElementById('weekRevenue').textContent = '¥' + weekRev.toFixed(2);
+            document.getElementById('monthRevenue').textContent = '¥' + monthRev.toFixed(2);
+            document.getElementById('allRevenue').textContent = '¥' + allRev.toFixed(2);
+        }
+
+        function renderRevenueChart(orders) {
+            const labels = [];
+            const values = [];
+            const now = new Date();
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - i);
+                d.setHours(0, 0, 0, 0);
+                const dayEnd = new Date(d);
+                dayEnd.setHours(23, 59, 59, 999);
+                labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
+
+                const dayRev = orders
+                    .filter(o => {
+                        const ct = new Date(o.createdAt);
+                        return ct >= d && ct <= dayEnd && (o.status === 'paid' || o.status === 'completed');
+                    })
+                    .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+                values.push(dayRev);
+            }
+
+            const maxVal = Math.max(...values, 1);
+            const container = document.getElementById('revenueChart');
+
+            container.innerHTML = values.map((v, i) => `
+                <div class="bar-item">
+                    <div class="bar" style="height:${Math.max((v / maxVal) * 150, 4)}px;">&nbsp;</div>
+                    <div class="bar-label">${labels[i]}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderSeatHeatmap(seats) {
+            const container = document.getElementById('seatHeatmap');
+            if (seats.length === 0) {
+                container.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">暂无座位数据</p>';
+                return;
+            }
+
+            const sortedSeats = [...seats].sort((a, b) => {
+                const na = parseInt(a.seatNumber) || 0, nb = parseInt(b.seatNumber) || 0;
+                return na - nb;
+            });
+
+            container.innerHTML = sortedSeats.map(seat => {
+                const isUsed = seat.status === '使用中';
+                const bgClass = isUsed ? 'background:linear-gradient(135deg,#007bff,#0056b3);color:white;' :
+                    'background:linear-gradient(135deg,#28a745,#1e7e34);color:white;';
+                return `<div class="heatmap-cell" style="${bgClass}">
+                    <div style="font-size:16px;font-weight:700;">${seat.seatNumber || '-'}</div>
+                    <div style="font-size:11px;margin-top:4px;">${isUsed ? '使用中' : '空闲'}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderPeakHourChart(orders) {
+            const hourCounts = new Array(24).fill(0);
+            const now = new Date();
+            const weekAgo = new Date(now);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+
+            orders.forEach(o => {
+                const ct = new Date(o.createdAt);
+                if (ct >= weekAgo && (o.status === 'paid' || o.status === 'completed')) {
+                    hourCounts[ct.getHours()]++;
+                }
+            });
+
+            const maxCount = Math.max(...hourCounts, 1);
+            const container = document.getElementById('peakHourChart');
+
+            container.innerHTML = hourCounts.map((count, hour) => `
+                <div class="bar-item">
+                    <div class="bar" style="height:${Math.max((count / maxCount) * 140, 3)}px;background:linear-gradient(135deg,#f093fb,#f5576c);">
+                        &nbsp;</div>
+                    <div class="bar-label">${hour}:00</div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== 页面初始化 ====================
+        window.addEventListener('load', async function () {
+            loadLogsFromStorage();
+            const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+
+            if (isLoggedIn) {
+                showLoading(true);
+                const success = await initCloudBase();
+                if (success) {
+                    showAdminPanel();
+                    await loadSeatsData();
+                    startAutoRefresh();
+                } else {
+                    localStorage.removeItem('isAdminLoggedIn');
+                    showToast('自动登录失败，请重新登录', 'error');
+                }
+                showLoading(false);
+            }
+        });
+    </script>
+</body>
+
+</html>

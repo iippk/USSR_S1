@@ -1,0 +1,1 @@
+{"permissions": {"openapi": []}, "timeout": 60, "triggers": [{"name": "autoReleaseTimer", "type": "timer", "config": "*/1 * * * * * *"}]}

@@ -1,0 +1,206 @@
+<!--rank.wxml - 排行榜 · Ocean Blue Premium v5.0 · 修复版-->
+<view class="container rank-page">
+  <!-- 头部卡片 - 青蓝渐变 -->
+  <view class="card-gradient-cyan rank-header fade-up">
+    <view class="rh-glass"></view>
+    <view class="rh-content">
+      <text class="rh-title">🏆 学习排行榜</text>
+      <text class="rh-sub">实时更新 · 激励学习</text>
+
+      <!-- 排行类型切换 -->
+      <view class="rank-type-switch">
+        <view class="rts-btn {{rankType === 'total' ? 'rts-active' : ''}}" data-type="total" bindtap="switchRankType"><text>总排行</text></view>
+        <view class="rts-btn {{rankType === 'today' ? 'rts-active' : ''}}" data-type="today" bindtap="switchRankType"><text>今日</text></view>
+        <view class="rts-btn {{rankType === 'week' ? 'rts-active' : ''}}" data-type="week" bindtap="switchRankType"><text>本周</text></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 当前用户排名卡片 -->
+  <view class="my-rank-card card-neu fade-up" style="animation-delay: 0.06s;" wx:if="{{currentUserRank}}">
+    <view class="mrc-left">
+      <view class="mrc-rank-num font-mono">#{{currentUserRank.rank}}</view>
+      <text class="mrc-name">{{currentUserRank.nickName || '我'}}</text>
+    </view>
+    <view class="mrc-right">
+      <text class="mrc-time-label">累计学时</text>
+      <text class="mrc-time-val font-mono">{{currentUserRank.formattedTime || '-'}}</text>
+    </view>
+  </view>
+
+  <!-- 刷新按钮 -->
+  <view class="refresh-row" wx:if="{{!isLoading}}">
+    <view class="refresh-chip-premium" bindtap="refreshRanking">
+      <text class="rc-icon">↻</text><text>刷新数据</text>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-box fade-up" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view><text>加载排行榜...</text>
+  </view>
+
+  <!-- 排行列表区域（始终显示） -->
+  <view wx:else class="rank-section fade-up" style="animation-delay: 0.12s;">
+    <view class="rank-list">
+      <!-- 已有数据显示 -->
+      <block wx:for="{{pagedRanking}}" wx:key="_openid">
+        <view
+          class="rank-item {{item._openid === currentUserOpenid ? 'ri-me' : ''}}"
+        >
+          <!-- 排名 -->
+          <view class="ri-rank-col">
+            <view class="ri-num {{index < 3 ? 'rn-top' + (index + 1) : 'rn-normal'}} font-mono">{{(currentPage - 1) * pageSize + index + 1}}</view>
+          </view>
+
+          <!-- 用户信息 -->
+          <view class="ri-user-col">
+            <view class="user-avatar-sm">
+              <image
+                wx:if="{{item.avatarUrl && !item.avatarError}}"
+                class="uas-img"
+                src="{{item.avatarUrl}}"
+                mode="aspectFill"
+                binderror="onAvatarError"
+                data-index="{{index}}"
+              />
+              <text class="uas-emoji" wx:else>{{(currentPage - 1) * pageSize + index < 3 ? ((currentPage - 1) * pageSize + index === 0 ? '🥇' : (currentPage - 1) * pageSize + index === 1 ? '🥈' : '🥉') : '👤'}}</text>
+            </view>
+            <view class="user-info-text">
+              <text class="uit-name">{{item.nickName || ('用户' + ((currentPage - 1) * pageSize + index + 1))}}</text>
+              <text class="uit-sub" wx:if="{{item._openid === currentUserOpenid}}">当前账号</text>
+            </view>
+          </view>
+
+          <!-- 学时 -->
+          <view class="ri-time-col">
+            <text class="rit-val font-mono">{{item.formattedTime || '-'}}</text>
+            <text class="rit-label">学时</text>
+          </view>
+        </view>
+      </block>
+
+      <!-- 空位占位符（始终预留5个位置） -->
+      <!-- <block wx:for="{{emptySlots}}" wx:key="*this" wx:for-item="slot" wx:for-index="slotIdx">
+        <view class="rank-item rank-empty-slot">
+          <view class="ri-rank-col">
+            <view class="ri-num rn-empty font-mono">{{pagedRanking.length + slotIdx + 1}}</view>
+          </view>
+          <view class="ri-user-col">
+            <view class="user-avatar-sm">
+              <view class="uas-img empty-avatar-placeholder"></view>
+            </view>
+            <view class="user-info-text">
+              <text class="uit-name uit-empty">-</text>
+            </view>
+          </view>
+          <view class="ri-time-col">
+            <text class="rit-val rit-empty font-mono">-</text>
+            <text class="rit-label">学时</text>
+          </view>
+        </view>
+      </block> -->
+    </view>
+
+    <!-- 完全无数据时的提示 -->
+    <view class="empty-rec" wx:if="{{ranking.length === 0}}">
+      <text class="empty-icon">🏆</text>
+      <text class="empty-text">{{rankType === 'total' ? '暂无排行数据' : rankType === 'today' ? '今日暂无学习记录' : '本周暂无学习记录'}}</text>
+      <text class="empty-tip">开始学习后即可上榜</text>
+    </view>
+  </view>
+
+  <!-- 分页器（始终显示，固定在排行榜底部） -->
+  <view class="pagination-section pg-cyan">
+    <view class="pg-btn {{currentPage <= 1 || totalPages <= 1 ? 'pg-disabled' : ''}}" bindtap="prevPage">◀ 上一页</view>
+    <view class="pg-center">
+      <text class="pg-cur">{{currentPage}}</text>
+      <text class="pg-slash">/</text>
+      <text class="pg-total">{{totalPages}}</text>
+    </view>
+    <view class="pg-btn {{currentPage >= totalPages || totalPages <= 1 ? 'pg-disabled' : ''}}" bindtap="nextPage">下一页 ▶</view>
+  </view>
+
+  <!-- ====== 留言板区域 ====== -->
+  <view class="message-board-section card-glass fade-up" style="animation-delay: 0.24s;">
+    <view class="mbs-header">
+      <view class="mbs-left">
+        <text class="mbs-icon">💬</text>
+        <text class="mbs-title">学习留言板</text>
+        <text class="mbs-sub">每周更新 · 按热度排序</text>
+      </view>
+      <button class="btn-write-message" bindtap="toggleMessageInput">✏️ 写留言</button>
+    </view>
+
+    <!-- 留言输入框（可展开/收起） -->
+    <view class="message-input-area" wx:if="{{showMessageInput}}">
+      <textarea
+        class="message-textarea"
+        value="{{messageContent}}"
+        placeholder="分享你的学习心得或鼓励大家吧~ (最多200字)"
+        maxlength="200"
+        bindinput="onMessageInput"
+        auto-height
+      />
+      <view class="mi-actions">
+        <text class="mi-count">{{messageContent.length}}/200</text>
+        <button class="btn-cancel" size="mini" bindtap="toggleMessageInput">取消</button>
+        <button class="btn-confirm btn-send-msg" size="mini" bindtap="submitMessage" disabled="{{isSubmittingMessage}}">
+          {{isSubmittingMessage ? '发送中...' : '发送'}}
+        </button>
+      </view>
+    </view>
+
+    <!-- 留言列表 -->
+    <scroll-view scroll-y="{{true}}" class="message-list-scroll" style="max-height:800rpx;">
+      <!-- 加载状态 -->
+      <view class="loading-box" wx:if="{{isLoadingMessages}}">
+        <view class="loading-spinner"></view>
+        <text>加载留言...</text>
+      </view>
+
+      <!-- 留言列表 -->
+      <view wx:elif="{{messages.length > 0}}" class="message-list">
+        <view class="msg-item" wx:for="{{messages}}" wx:key="_id">
+          <view class="msg-left">
+            <image
+              wx:if="{{item.avatarUrl}}"
+              class="msg-avatar"
+              src="{{item.avatarUrl}}"
+              mode="aspectFill"
+            />
+            <view wx:else class="msg-avatar-default">
+              <text>{{item.nickName[0] || '用'}}</text>
+            </view>
+          </view>
+          <view class="msg-right">
+            <view class="msg-top">
+              <text class="msg-name">{{item.nickName}}</text>
+              <view class="msg-top-right">
+                <text class="msg-time">{{item.formattedDate}}</text>
+                <!-- 删除按钮（仅当前用户的留言显示） -->
+                <view class="delete-msg-btn" wx:if="{{item.userId === currentUserOpenid}}" data-id="{{item._id}}" bindtap="deleteMessage">
+                  <text>🗑️</text>
+                </view>
+              </view>
+            </view>
+            <text class="msg-content">{{item.content}}</text>
+            <view class="msg-bottom">
+              <view class="like-btn {{item.isLiked ? 'liked' : ''}}" data-id="{{item._id}}" bindtap="likeMessage">
+                <text class="like-icon">{{item.isLiked ? '❤️' : '🤍'}}</text>
+                <text class="like-count">{{item.likeCount || 0}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:else class="empty-messages">
+        <text class="empty-icon">💬</text>
+        <text class="empty-text">暂无留言</text>
+        <text class="empty-tip">成为第一个留言的人吧～</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

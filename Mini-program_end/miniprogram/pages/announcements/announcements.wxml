@@ -1,0 +1,47 @@
+<view class="ann-page">
+  <!-- 当前公告内容区 -->
+  <scroll-view class="ann-main" scroll-y enhanced show-scrollbar="{{false}}" scroll-top="{{scrollTop}}">
+    <view class="ann-article" wx:if="{{currentAnnouncement}}">
+      <view class="aa-badge-row">
+        <view class="aa-pin" wx:if="{{currentAnnouncement.isPinned}}">📌 置顶</view>
+        <view class="aa-type-tag">{{currentAnnouncement.typeName || '通知'}}</view>
+      </view>
+      <text class="aa-title">{{currentAnnouncement.title}}</text>
+      <view class="aa-meta">
+        <text class="aa-time">{{currentAnnouncement.createdAt}}</text>
+      </view>
+      <view class="aa-divider"></view>
+      <text class="aa-content">{{currentAnnouncement.content}}</text>
+    </view>
+
+    <!-- 更多公告 -->
+    <view class="ann-others" wx:if="{{otherAnnouncements.length > 0}}">
+      <view class="ao-header">
+        <text class="ao-title">📋 更多公告</text>
+        <text class="ao-count">{{otherAnnouncements.length}}条</text>
+      </view>
+      <view class="ao-list">
+        <view
+          wx:for="{{otherAnnouncements}}"
+          wx:key="_id"
+          class="ao-card"
+          data-id="{{item._id}}"
+          bindtap="selectAnnouncement"
+        >
+          <view class="aoc-top">
+            <view class="aoc-pin" wx:if="{{item.isPinned}}">📌</view>
+            <text class="aoc-title">{{item.title}}</text>
+          </view>
+          <text class="aoc-preview">{{item.content}}</text>
+          <text class="aoc-time">{{item.createdAt}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="ann-empty" wx:if="{{!currentAnnouncement && announcements.length === 0}}">
+      <text class="ae-icon">📢</text>
+      <text class="ae-text">暂无系统公告</text>
+    </view>
+  </scroll-view>
+</view>

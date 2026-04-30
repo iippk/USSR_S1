@@ -1,0 +1,170 @@
+<!--mine.wxml - 个人中心 · Ocean Blue Premium v5.0-->
+<view class="container mine-page">
+  <!-- 用户卡片 - 紫蓝渐变 -->
+  <view class="card-gradient-violet user-card fade-up" wx:if="{{userInfo}}">
+    <view class="uc-glass"></view>
+    <view class="uc-content">
+      <view class="uc-top">
+        <view class="avatar-box" bindtap="chooseAvatar">
+          <image class="uc-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" binderror="onAvatarError" />
+          <view class="avatar-ring"></view>
+          <view class="avatar-edit">✎</view>
+        </view>
+        <view class="uc-meta">
+          <view class="name-row">
+            <text class="uc-name">{{userInfo.nickName}}</text>
+            <view class="edit-name-btn" bindtap="showNicknameDialog">编辑</view>
+          </view>
+          <text class="uc-sub">ID: {{userInfo._openid ? userInfo._openid.substring(0, 8) : '-'}}...</text>
+        </view>
+
+        <!-- 累计学习次数 - 内嵌用户卡片右侧 -->
+        <view class="study-count-inline">
+          <text class="sci-icon">📚</text>
+          <view class="sci-detail">
+            <text class="sci-num font-mono">{{studyCount}}</text>
+            <text class="sci-lbl">累计学习</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 登录引导 -->
+  <view class="login-card card-solid fade-up" wx:else>
+    <view class="login-hero">
+      <text class="login-icon">👤</text>
+      <text class="login-title">登录后查看更多</text>
+      <text class="login-desc">记录学习数据，管理个人信息</text>
+      <button class="btn-login-action" bindtap="handleLogin">立即登录</button>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-entry fade-up" style="animation-delay: 0.12s;" bindtap="goToOrders">
+    <view class="qe-left">
+      <view class="qe-icon-circle blue"><text class="qe-icon-text">📋</text></view>
+      <view class="qe-text-group">
+        <text class="qe-text">我的订单</text>
+        <text class="qe-desc">查看所有预约记录</text>
+      </view>
+    </view>
+    <text class="qe-arrow">›</text>
+  </view>
+
+  <view class="quick-entry fade-up" style="animation-delay: 0.14s;" bindtap="goToCoupons">
+    <view class="qe-left">
+      <view class="qe-icon-circle amber"><text class="qe-icon-text">🎫</text></view>
+      <view class="qe-text-group">
+        <text class="qe-text">我的优惠券</text>
+        <text class="qe-desc">{{couponCount > 0 ? couponCount + '张可用' : '暂无'}}</text>
+      </view>
+    </view>
+    <text class="qe-arrow">›</text>
+  </view>
+
+  <!-- 最近自习记录（分页） -->
+  <!-- <view class="rec-card card-solid fade-up" style="animation-delay: 0.18s;">
+    <view class="rec-header">
+      <text class="rec-title">📝 最近记录</text>
+      <text class="rec-count-tag">共{{studyRecords.length}}条</text>
+    </view>
+
+    <view class="rec-list" wx:if="{{pagedRecords.length > 0}}">
+      <view class="rec-item-mine" wx:for="{{pagedRecords}}" wx:key="_id">
+        <view class="rim-left">
+          <view class="rim-icon"><text>📖</text></view>
+          <view class="rim-info">
+            <text class="rim-seat">座位 {{item.seatNumber || '-'}}</text>
+            <text class="rim-date">{{item.formattedDate || '-'}}</text>
+          </view>
+        </view>
+        <text class="rim-dur font-mono">{{item.formattedDuration || '-'}}</text>
+      </view>
+    </view>
+
+    <view class="empty-rec" wx:elif="{{!isLoading && studyRecords.length === 0}}">
+      <text class="empty-icon">📝</text><text class="empty-text">暂无学习记录</text><text class="empty-tip">开始学习后将自动记录</text>
+    </view>
+
+    <view class="pagination-bar pg-purple" wx:if="{{totalPages > 1}}">
+      <view class="pg-btn {{currentPage <= 1 ? 'pg-disabled' : ''}}" bindtap="prevPage">上一页</view>
+      <view class="pg-pages"><text class="pg-cur">{{currentPage}}</text><text class="pg-slash">/</text>{{totalPages}}</view>
+      <view class="pg-btn {{currentPage >= totalPages ? 'pg-disabled' : ''}}" bindtap="nextPage">下一页</view>
+    </view>
+  </view> -->
+
+  <!-- 功能介绍 -->
+  <view class="info-card card-solid fade-up" style="animation-delay: 0.22s;">
+    <view class="ic-header"><text class="ic-title">ℹ️ 关于本小程序</text></view>
+    <view class="info-list">
+      <view class="info-item">
+        <text class="info-emoji">🏢</text>
+        <view class="info-body">
+          <text class="info-name">上岸自习室</text>
+          <text class="info-desc">无人值守智能自习室管理系统</text>
+        </view>
+      </view>
+      <view class="info-item">
+        <text class="info-emoji">⚡</text>
+        <view class="info-body">
+          <text class="info-name">实时座位监控</text>
+          <text class="info-desc">云端数据库实时同步座位状态</text>
+        </view>
+      </view>
+      <view class="info-item">
+        <text class="info-emoji">🔒</text>
+        <view class="info-body">
+          <text class="info-name">安全支付</text>
+          <text class="info-desc">微信支付安全保障交易安全</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="app-footer">
+    <text class="footer-brand">上岸自习室 v2.0</text>
+    <text class="footer-ver">Powered by WeChat Cloud</text>
+  </view>
+
+  <!-- 昵称修改弹窗 -->
+  <view class="modal-overlay" wx:if="{{showNicknameDialog}}" bindtap="onNicknameOverlayTap">
+    <view class="modal-content nick-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">✏️ 修改昵称</text>
+        <view class="modal-close" bindtap="closeNicknameDialog">×</view>
+      </view>
+      <view class="modal-body">
+        <input class="nick-input ifl-input" value="{{newNickname}}" placeholder="请输入新昵称(2-20字)" maxlength="20" bindinput="onNicknameInput" />
+        <text class="nick-len">{{newNickname.length}}/20</text>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-cancel" bindtap="closeNicknameDialog">取消</button>
+        <button class="btn-confirm" style="background: linear-gradient(135deg, #7C3AED, #6D28D9) !important; box-shadow: 0 4rpx 16rpx rgba(124,58,237,0.28) !important;" bindtap="updateNickname">保存</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 头像选择弹窗 -->
+  <view class="modal-overlay" wx:if="{{showAvatarDialog}}" bindtap="onAvatarOverlayTap">
+    <view class="modal-content avatar-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">📷 更换头像</text>
+        <view class="modal-close" bindtap="closeAvatarDialog">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="av-options">
+          <view class="av-opt" bindtap="chooseAvatarFromAlbum">
+            <text class="av-opt-icon">🖼️</text>
+            <text>从相册选择</text>
+          </view>
+          <view class="av-opt" bindtap="useDefaultAvatar">
+            <text class="av-opt-icon">😊</text>
+            <text>使用默认头像</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

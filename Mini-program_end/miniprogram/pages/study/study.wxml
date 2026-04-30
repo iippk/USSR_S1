@@ -1,0 +1,372 @@
+<!-- study.wxml - 学时统计 · Session模型 v2.2 -->
+<view class="study-page">
+  <view class="container">
+  <!-- 状态卡片 -->
+  <view wx:if="{{isStudying}}" class="status-card card-gradient-indigo">
+    <view class="sc-glass"></view>
+    <view class="sc-content">
+      <view class="sc-top-row">
+        <text class="sc-label">座位状态</text>
+        <view class="status-badge {{sessionActive ? 'sb-studying' : currentSeat ? 'sb-using' : 'sb-idle'}}">
+          <view class="sb-dot" wx:if="{{sessionActive}}"></view>
+          <text>{{sessionActive ? '正在学习' : currentSeat ? '使用中' : '未开始'}}</text>
+        </view>
+      </view>
+
+      <!-- 计时器 -->
+      <view class="timer-display" wx:if="{{sessionActive}}">
+        <view class="timer-inner">
+          <text class="td-unit">{{currentStudyTime[0]}}{{currentStudyTime[1]}}</text>
+          <text class="timer-sep">:</text>
+          <text class="td-unit">{{currentStudyTime[3]}}{{currentStudyTime[4]}}</text>
+          <text class="timer-sep">:</text>
+          <text class="td-unit">{{currentStudyTime[6]}}{{currentStudyTime[7]}}</text>
+        </view>
+        <text class="timer-sub">本次已学时长</text>
+      </view>
+
+      <!-- 占位计时器（未开始学习时） -->
+      <view class="timer-placeholder" wx:else>
+        <text class="tp-text">--:--:--</text>
+      </view>
+
+      <!-- 单次学习时长 / 到期时间条 -->
+      <view class="session-duration-bar" wx:if="{{currentSeat && !sessionActive}}">
+        <text class="sdb-icon">⏱</text>
+        <view class="sdb-info">
+          <text class="sdb-label">单次学习时长</text>
+          <text class="sdb-val">等待开始</text>
+        </view>
+        <text class="sdb-order-info" wx:if="{{autoReleaseTime}}">到期:{{autoReleaseTime}}</text>
+      </view>
+
+      <view class="session-duration-bar" wx:if="{{currentSeat && sessionActive}}">
+        <text class="sdb-icon">⏱</text>
+        <view class="sdb-info">
+          <text class="sdb-label">本次已学时长</text>
+          <text class="sdb-val">{{currentStudyTime}}</text>
+        </view>
+        <text class="sdb-order-info" wx:if="{{remainingStudyTime !== '00:00:00'}}">剩余:{{remainingStudyTime}}</text>
+      </view>
+
+      <!-- 控制面板：无座位 → 预订；有座位+未开始 → 开始；进行中 → 结束 -->
+      <view class="control-panel" wx:if="{{!currentSeat}}">
+        <button bindtap="goToSeat" class="btn-start">🪑 预订座位</button>
+      </view>
+
+      <view class="control-panel" wx:elif="{{currentSeat && !sessionActive}}">
+        <button catchtap="startSession" class="btn-start-session">▶ 开始本次学习</button>
+        <button catchtap="openExtendModal" class="btn-extend-sm">续费延时</button>
+      </view>
+
+      <view class="control-panel" wx:elif="{{sessionActive}}">
+        <button catchtap="endSession" class="btn-stop">■ 结束本次学习</button>
+        <button catchtap="openExtendModal" class="btn-extend-sm">续费延时</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 未开始状态卡片 -->
+  <view wx:else class="status-card card-solid">
+    <view class="sc-content" style="padding: 40rpx 32rpx; text-align:center;">
+      <text style="font-size: 56rpx; display:block; margin-bottom: 16rpx;">📚</text>
+      <text style="font-size: 28rpx; color: #64748B; font-weight:600;">暂无进行中的学习</text>
+      <button bindtap="goToSeat" style="margin-top:24rpx;" class="btn-extend">🪑 去预订座位</button>
+    </view>
+  </view>
+
+  <!-- 提前退订行（有座位时显示） -->
+  <view wx:if="{{isStudying}}" class="cancel-row" catchtap="confirmCancelOrder">
+    <view class="cancel-left">
+      <text class="cancel-icon">↩️</text>
+      <view class="cancel-text-group">
+        <text class="cancel-title">提前退订座位</text>
+        <text class="cancel-tip">退订后请前往前台联系管理员退款</text>
+      </view>
+    </view>
+    <text class="cancel-arrow">›</text>
+  </view>
+
+  <!-- 硬件控制区域（有座位就显示） -->
+  <view wx:if="{{isStudying}}" class="hardware-section card-glass">
+    <view class="hw-header">
+      <text class="hw-title">🔧 隔间设备控制</text>
+    </view>
+
+    <!-- 门锁开关（独立状态，不自动关闭） -->
+    <view class="hw-row">
+      <view class="hw-item">
+        <view class="hw-icon-wrap door"><text>🚪</text></view>
+        <text class="hw-label">门锁</text>
+        <switch checked="{{hwDoorOn}}" color="#2563EB" catchchange="onDoorSwitch"/>
+      </view>
+    </view>
+
+    <view class="hw-divider"></view>
+
+    <!-- 灯光 + 空调 双列卡片 -->
+    <view class="hw-grid-2">
+      <view class="hw-card {{hwLightOn ? 'hw-on' : ''}}">
+        <view class="hw-top">
+          <view class="hw-icon-wrap light"><text>💡</text></view>
+          <switch checked="{{hwLightOn}}" color="#F59E0B" size="mini" catchchange="onLightSwitch"/>
+        </view>
+        <text class="hw-name">灯光</text>
+        <text class="hw-state">{{hwLightOn ? '已开启' : '已关闭'}}</text>
+      </view>
+
+      <view class="hw-card {{hwACOn ? 'hw-on' : ''}}">
+        <view class="hw-top">
+          <view class="hw-icon-wrap ac"><text>❄️</text></view>
+          <switch checked="{{hwACOn}}" color="#06B6D4" size="mini" catchtap="preventBubble" catchchange="onACSwitch"/>
+        </view>
+        <text class="hw-name">空调</text>
+        <text class="hw-state">{{hwACOn ? '已开启' : '已关闭'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="stats-section card-glass">
+    <view class="ss-header">
+      <text class="ss-title">📊 学习统计</text>
+    </view>
+    <view class="quad-grid">
+      <view class="q-card">
+        <view class="qc-icon-wrap"><text class="qc-icon">📅</text></view>
+        <text class="qc-num">{{formattedTodayStudyTime}}</text>
+        <text class="qc-lbl">今日</text>
+      </view>
+      <view class="q-card">
+        <view class="qc-icon-wrap"><text class="qc-icon">📆</text></view>
+        <text class="qc-num">{{formattedWeekStudyTime}}</text>
+        <text class="qc-lbl">本周</text>
+      </view>
+      <view class="q-card">
+        <view class="qc-icon-wrap"><text class="qc-icon">🗓</text></view>
+        <text class="qc-num">{{formattedMonthStudyTime}}</text>
+        <text class="qc-lbl">本月</text>
+      </view>
+      <view class="q-card">
+        <view class="qc-icon-wrap"><text class="qc-icon">⏰</text></view>
+        <text class="qc-num">{{formattedTotalStudyTime}}</text>
+        <text class="qc-lbl">总计</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自习记录列表 -->
+  <view class="records-section card-glass">
+    <view class="rs-header">
+      <text class="rs-title">📝 自习记录</text>
+      <text class="rs-count">共{{studyRecords.length}}条</text>
+    </view>
+
+    <scroll-view scroll-y class="rec-scroll-area" style="max-height: 500rpx;">
+      <view wx:if="{{pagedRecords.length > 0}}" class="rec-list">
+        <view wx:for="{{pagedRecords}}" wx:key="_id" class="rec-item">
+          <view class="ri-left">
+            <view class="ri-seat-badge">{{item.seatNumber}}</view>
+            <view class="ri-info">
+              <text class="ri-date">{{item.formattedDate}}</text>
+              <text class="ri-dur">学时: {{item.formattedTime}}</text>
+            </view>
+          </view>
+          <view class="ri-right">
+            <text class="ri-time">{{item.formattedTime}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:elif="{{!isLoading}}" class="empty-rec">
+        <text class="empty-icon">📭</text>
+        <text class="empty-text">暂无自习记录</text>
+        <text class="empty-tip">开始学习后这里会显示你的学习记录</text>
+      </view>
+      <view wx:else class="loading-box">
+        <text>加载中...</text>
+      </view>
+    </scroll-view>
+
+    <!-- 分页器 -->
+    <view wx:if="{{totalPages > 1}}" class="pagination-section">
+      <view class="pg-btn {{currentPage <= 1 ? 'pg-disabled' : ''}}" bindtap="prevPage">◀ 上一页</view>
+      <view class="pg-center">
+        <text class="pg-cur">{{currentPage}}</text>
+        <text class="pg-slash">/</text>
+        <text class="pg-total">{{totalPages}}</text>
+      </view>
+      <view class="pg-btn {{currentPage >= totalPages ? 'pg-disabled' : ''}}" bindtap="nextPage">下一页 ▶</view>
+    </view>
+  </view>
+
+  </view><!-- /container -->
+
+  <!-- 续费弹窗（一级）- 完全照搬seat预订弹窗结构 -->
+  <view wx:if="{{showExtendModal}}" class="modal-overlay" bindtap="onExtendOverlayTap">
+    <view class="modal-content extend-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">⏳ 续费延时</text>
+        <view class="modal-close" catchtap="closeExtendModal">×</view>
+      </view>
+
+      <view class="modal-body">
+        <!-- 当前座位信息 -->
+        <view class="reserve-info-row">
+          <text class="info-label">当前座位</text>
+          <view class="info-value-box">
+            <text class="info-seat-num">{{currentSeat.seatNumber}}</text>
+            <view class="tag-blue"><text style="font-size:20rpx;">使用中</text></view>
+          </view>
+        </view>
+
+        <!-- 套餐选择 -->
+        <view class="form-section">
+          <text class="form-label">套餐类型</text>
+          <view class="plan-grid">
+            <view
+              class="plan-chip {{extendPlanType === 'hour' ? 'chip-active' : ''}}"
+              catchtap="setExtPlanType"
+              data-type="hour"
+            >
+              <text class="plan-name">按时</text>
+              <text class="plan-rate">¥{{extendUnitPrice}}/小时</text>
+            </view>
+            <view
+              class="plan-chip {{extendPlanType === 'day' ? 'chip-active' : ''}}"
+              catchtap="setExtPlanType"
+              data-type="day"
+            >
+              <text class="plan-name">按天</text>
+              <text class="plan-rate">¥{{extendDayPrice}}/天</text>
+            </view>
+            <view
+              class="plan-chip {{extendPlanType === 'week' ? 'chip-active' : ''}}"
+              catchtap="setExtPlanType"
+              data-type="week"
+            >
+              <text class="plan-name">按周</text>
+              <text class="plan-rate">¥{{extendWeekPrice}}/周</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 数量选择 -->
+        <view class="form-section">
+          <text class="form-label">续订数量</text>
+          <picker mode="selector" range="{{extendQuantityOptions}}" value="{{extendQuantityIndex}}" bindchange="bindExtendQuantityChange">
+            <view class="picker-display">
+              <text>{{extendQuantityOptions[extendQuantityIndex] || 1}} {{extendUnitText}}</text>
+              <text class="picker-arrow">▾</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 预计到期时间（实时计算） -->
+        <view class="expire-info" wx:if="{{extendExpireDate}}">
+          <view class="expire-icon">🕐</view>
+          <view class="expire-detail">
+            <text class="expire-lbl">预计到期时间</text>
+            <text class="expire-val">{{extendExpireDate}}</text>
+          </view>
+        </view>
+
+        <!-- 优惠券（点击打开二级弹窗） -->
+        <view class="coupon-trigger" catchtap="toggleExtendCouponList">
+          <view class="ct-left">
+            <text class="ct-icon">🎫</text>
+            <text class="ct-lbl">优惠券</text>
+          </view>
+          <view class="ct-right">
+            <text wx:if="{{extendSelectedCoupon}}" class="ct-selected">已选 -¥{{extendSelectedCoupon.discountAmount}}</text>
+            <text wx:else class="ct-placeholder">{{extendAvailableCoupons.length > 0 ? extendAvailableCoupons.length + '张可用' : '暂无'}}</text>
+            <text class="ct-arrow">›</text>
+          </view>
+        </view>
+
+        <!-- 价格汇总 -->
+        <view class="price-summary">
+          <text class="price-lbl">应付金额</text>
+          <view class="price-right">
+            <text class="price-old" wx:if="{{extendSelectedCoupon && extendFinalPrice < extendTotalPrice}}">¥{{extendTotalPrice}}</text>
+            <text class="price-now">¥{{extendFinalPrice}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="btn-cancel" catchtap="closeExtendModal">取消</button>
+        <button class="btn-confirm" catchtap="confirmExtend">确认续订</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- ====== 二级弹窗：优惠券选择器（与seat页面完全一致）====== -->
+  <view class="modal-overlay modal-overlay-l2" wx:if="{{showExtendModal && showExtendCouponList}}" catchtap="toggleExtendCouponList">
+    <view class="modal-content coupon-picker-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">🎫 选择优惠券</text>
+        <view class="modal-close" catchtap="toggleExtendCouponList">×</view>
+      </view>
+
+      <view class="cpm-body">
+        <!-- 空状态 -->
+        <view wx:if="{{extendAvailableCoupons.length === 0}}" class="cpm-empty">
+          <text class="cpm-empty-icon">🎫</text>
+          <text class="cpm-empty-text">暂无可用优惠券</text>
+          <text class="cpm-empty-sub">多参与活动获取优惠券吧～</text>
+        </view>
+
+        <!-- 优惠券列表 -->
+        <scroll-view scroll-y="{{true}}" style="max-height:560rpx;" wx:else>
+          <view class="cpm-list">
+            <view
+              class="cpm-item {{item._id === extendSelectedCouponId ? 'cpm-sel' : ''}}"
+              wx:for="{{extendAvailableCoupons}}"
+              wx:key="_id"
+              data-id="{{item._id}}"
+              catchtap="selectExtendCoupon"
+            >
+              <view class="cpm-left">
+                <text class="cpm-amt">¥{{item.discountAmount}}</text>
+                <text class="cpm-type">{{item.type}}</text>
+              </view>
+              <view class="cpm-mid">
+                <text class="cpm-name">{{item.name || '全场通用券'}}</text>
+                <text class="cpm-scope">全场座位续订可用</text>
+                <text class="cpm-date" wx:if="{{item.expireAt}}">{{item.formattedExpireDate || '长期有效'}}</text>
+              </view>
+              <view class="cpm-check-wrap">
+                <view class="cpm-check {{item._id === extendSelectedCouponId ? 'checked' : ''}}">
+                  {{item._id === extendSelectedCouponId ? '✓' : ''}}
+                </view>
+              </view>
+            </view>
+
+            <!-- 不使用选项 -->
+            <view
+              class="cpm-item cpm-none-opt {{!extendSelectedCouponId ? 'cpm-sel' : ''}}"
+              catchtap="deselectExtendCoupon"
+            >
+              <view class="cpm-left">
+                <text class="cpm-amt-none">不使用</text>
+              </view>
+              <view class="cpm-mid">
+                <text class="cpm-name">不使用优惠券</text>
+                <text class="cpm-scope">按原价支付</text>
+              </view>
+              <view class="cpm-check-wrap">
+                <view class="cpm-check {{!extendSelectedCouponId ? 'checked' : ''}}">
+                  {{!extendSelectedCouponId ? '✓' : ''}}
+                </view>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="cpm-footer">
+        <button class="btn-cpm-confirm" catchtap="toggleExtendCouponList">确定</button>
+      </view>
+    </view>
+  </view>
+</view>

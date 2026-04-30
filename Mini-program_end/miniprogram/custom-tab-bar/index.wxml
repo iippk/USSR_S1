@@ -1,0 +1,37 @@
+<view class="custom-tab-bar">
+  <view class="tab-bar-bg">
+    <!-- 顶部发光指示条 -->
+    <view class="indicator-track">
+      <view class="indicator-dot" style="left: calc(({{selected}} * 20%) + 10% - 12rpx);"></view>
+    </view>
+
+    <view class="tab-items">
+      <view
+        class="tab-item {{animatingIndex === idx ? 'animating' : ''}} {{selected === idx ? 'active' : ''}}"
+        wx:for="{{list}}"
+        wx:key="text"
+        wx:for-index="idx"
+        data-index="{{idx}}"
+        bindtap="switchTab"
+      >
+        <!-- 图标容器 -->
+        <view class="icon-wrap">
+          <text class="tab-icon">{{selected === idx ? item.activeIcon : item.iconPath}}</text>
+          <!-- 激活光晕 -->
+          <view class="icon-glow" wx:if="{{selected === idx}}"></view>
+          <!-- 点击波纹 -->
+          <view class="ripple" wx:if="{{animatingIndex === idx}}"></view>
+        </view>
+
+        <!-- 文字 -->
+        <text class="tab-text">{{item.text}}</text>
+
+        <!-- 选中指示器（小圆点） -->
+        <view class="select-indicator" wx:if="{{selected === idx}}"></view>
+      </view>
+    </view>
+
+    <!-- 底部安全区 -->
+    <view class="safe-area-bottom"></view>
+  </view>
+</view>

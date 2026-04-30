@@ -1,0 +1,22 @@
+{
+    "name": "ussr-admin-vue",
+    "version": "2.0.0",
+    "description": "无人自习室后台管理系统 - Vue3版本",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "datav-vue3-plus": "^1.7.2",
+        "echarts": "^5.6.0",
+        "vue": "^3.4.15",
+        "vue-echarts": "^6.7.3",
+        "vue-router": "^4.6.4"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.0.3",
+        "vite": "^5.0.12"
+    }
+}

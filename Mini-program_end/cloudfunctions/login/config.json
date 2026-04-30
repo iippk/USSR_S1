@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "openapi": [
+      "wx.getUserInfo"
+    ]
+  },
+  "timeout": 5000
+}

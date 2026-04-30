@@ -1,0 +1,395 @@
+<!--seat.wxml - 座位管理 · Ocean Blue Design-->
+<view class="container">
+  <!-- 活跃订单提示 -->
+  <view class="order-banner" wx:if="{{hasActiveOrder && activeOrderInfo}}">
+    <view class="banner-badge">⏳ 进行中</view>
+    <view class="banner-body">
+      <text class="banner-main">座位 {{activeOrderInfo.seatNumber}} · 到期 {{activeOrderInfo.formattedExpireAt}}</text>
+      <text class="banner-sub">如需延时请前往学时页面续费</text>
+    </view>
+    <view class="banner-action" bindtap="goToStudy">续费 →</view>
+  </view>
+
+     <!-- 包间介绍模块 -->
+  <view class="zone-intro-card">
+    <view class="zone-intro-header">
+      <text class="zone-intro-icon">🏠</text>
+      <text class="zone-intro-title">包间介绍</text>
+      <text class="zone-intro-sub">点击查看详情</text>
+    </view>
+    <view class="zone-intro-grid">
+      <view
+        class="zone-intro-item {{item.key}}"
+        wx:for="{{zoneRooms}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="showRoomDetailModal"
+      >
+        <view class="zi-icon-wrap" style="background:{{item.bgColor}};border:1.5rpx solid {{item.borderColor}};">
+          <text class="zi-icon">{{item.icon}}</text>
+        </view>
+        <view class="zi-info">
+          <text class="zi-name" style="color:{{item.color}};">{{item.name}}</text>
+          <text class="zi-tagline">{{item.tagline}}</text>
+        </view>
+        <view class="zi-price" style="background:{{item.bgColor}};border:1rpx solid {{item.borderColor}};">
+          <text class="zi-price-val" style="color:{{item.color}};">¥{{item.pricePerHour}}</text>
+          <text class="zi-price-unit">/小时</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 使用指南卡片 -->
+  <view class="guide-card">
+    <view class="guide-header">
+      <text class="沉浸guide-icon">📖</text>
+      <text class="guide-title">选座指南</text>
+    </view>
+    <view class="guide-steps">
+      <view class="step-item">
+        <view class="step-num">1</view>
+        <view class="step-body">
+          <text class="step-title">选择包间与座位</text>
+          <text class="step-desc">沉浸区/阳光区/VIP区，点击绿色空闲座位预订</text>
+        </view>
+      </view>
+      <view class="step-item">
+        <view class="step-num">2</view>
+        <view class="step-body">
+          <text class="step-title">选择套餐时长</text>
+          <text class="step-desc">各分区价格不同，支持按时、按天、按周三种套餐</text>
+        </view>
+      </view>
+      <view class="step-item">
+        <view class="step-num">3</view>
+        <view class="step-body">
+          <text class="step-title">确认支付</text>
+          <text class="step-desc">可选用优惠券抵扣，支付成功后座位即预订完成</text>
+        </view>
+      </view>
+      <view class="step-item">
+        <view class="step-num">4</view>
+        <view class="step-body">
+          <text class="step-title">开始学习</text>
+          <text class="step-desc">前往学时页面查看计时，到期前可随时续费延长</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-box" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-txt">加载座位数据...</text>
+  </view>
+
+  <!-- 座位网格主体 -->
+  <view class="seat-card" wx:else>
+    <!-- 卡片标题栏 -->
+    <view class="sc-header">
+      <view class="sc-title-area">
+        <text class="sc-title">座位总览</text>
+        <text class="sc-sub">{{seats.length}}个座位</text>
+      </view>
+      <view class="sc-actions">
+        <view class="sc-refresh-btn" bindtap="manualRefresh">
+          <text class="sc-refresh-icon">🔄</text>
+        </view>
+      </view>
+      <view class="sc-status-summary">
+        <text class="ss-dot ss-avail"></text>
+        <text class="ss-txt">空闲</text>
+        <text class="ss-dot ss-use"></text>
+        <text class="ss-txt">使用中</text>
+        <text class="ss-dot ss-fix"></text>
+        <text class="ss-txt">维护中</text>
+      </view>
+    </view>
+
+    <!-- 图例 -->
+    <view class="legend-bar">
+      <view class="lg-item"><view class="lg-dot avail"></view><text>空闲</text></view>
+      <view class="lg-item"><view class="lg-dot rsv"></view><text>已订</text></view>
+      <view class="lg-item"><view class="lg-dot use"></view><text>使用中</text></view>
+      <view class="lg-item"><view class="lg-dot fix"></view><text>维护中</text></view>
+    </view>
+
+    <!-- 座位表格 -->
+    <view class="seat-table">
+      <!-- 表头列号 -->
+      <view class="table-head">
+        <view class="th-cell corner"></view>
+        <view class="th-cols">
+          <view class="th-cell" wx:for="{{colNumbers}}" wx:for-item="c" wx:key="{{c}}">
+            <text class="th-text">{{c}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 行数据（带分区标题） -->
+      <block wx:for="{{rowNumbers}}" wx:for-item="r" wx:key="{{r}}">
+        <!-- 分区标题 -->
+        <view
+          wx:if="{{zoneHeaders.length > 0 && item.zone && r === item.row}}"
+          class="zone-header {{item.zone.key}}"
+          wx:for="{{zoneHeaders}}"
+          wx:for-item="item"
+          wx:key="row"
+          data-key="{{item.zone.key}}"
+          bindtap="showRoomDetailModal"
+        >
+          <view class="zh-left">
+            <text class="zh-icon">{{item.zone.icon}}</text>
+            <text class="zh-name" style="color:{{item.zone.color}};">{{item.zone.fullName}}</text>
+          </view>
+          <text class="zh-tagline">{{item.zone.tagline}}</text>
+          <view class="zh-price-tag" style="background:{{item.zone.bgColor}};border:1rpx solid {{item.zone.borderColor}};">
+            <text class="zh-price-val" style="color:{{item.zone.color}};">¥{{item.zone.pricePerHour}}/h</text>
+          </view>
+        </view>
+
+        <!-- 座位行 -->
+        <view class="table-row">
+          <view class="th-cell row-label">
+            <text class="rl-text">{{r}}</text>
+          </view>
+          <view class="row-cells">
+            <view wx:for="{{colNumbers}}" wx:for-item="c" wx:for-index="ci" wx:key="{{c}}">
+              <view
+                wx:if="{{seatsByRow[r] && seatsByRow[r][c]}}"
+                class="seat-cell {{seatsByRow[r][c].status === '空闲' ? 'avail' : seatsByRow[r][c].status === '维护中' ? 'fix' : 'use'}}"
+                data-seat-id="{{seatsByRow[r][c]._id}}"
+                bindtap="selectSeat"
+              >
+                <text class="seat-no">{{seatsByRow[r][c].seatNumber}}</text>
+              </view>
+              <view wx:else class="seat-cell empty-cell"></view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 底部操作提示 -->
+    <view class="sc-footer">
+      <text class="sc-footer-icon">👆</text>
+      <text class="sc-footer-text">点击绿色空闲座位即可预订</text>
+    </view>
+  </view>
+
+  <!-- 包间详情弹窗 -->
+  <view class="modal-overlay" wx:if="{{showRoomDetail}}" bindtap="onRoomDetailOverlayTap">
+    <view class="modal-content room-detail-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">{{roomDetail.icon}} {{roomDetail.fullName}}</text>
+        <view class="modal-close" bindtap="closeRoomDetail">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="rd-tagline" style="color:{{roomDetail.color}};background:{{roomDetail.bgColor}};border:1rpx solid {{roomDetail.borderColor}};">
+          <text>{{roomDetail.tagline}}</text>
+        </view>
+
+        <view class="rd-price-section">
+          <view class="rd-price-card" style="background:{{roomDetail.bgColor}};border:1.5rpx solid {{roomDetail.borderColor}};">
+            <text class="rd-price-label">小时</text>
+            <text class="rd-price-amount" style="color:{{roomDetail.color}};">¥{{roomDetail.pricePerHour}}</text>
+            <text class="rd-price-unit">/小时</text>
+          </view>
+          <view class="rd-price-card" style="background:{{roomDetail.bgColor}};border:1.5rpx solid {{roomDetail.borderColor}};">
+            <text class="rd-price-label">天卡</text>
+            <text class="rd-price-amount" style="color:{{roomDetail.color}};">¥{{roomDetail.pricePerDay}}</text>
+            <text class="rd-price-unit">/天</text>
+          </view>
+          <view class="rd-price-card" style="background:{{roomDetail.bgColor}};border:1.5rpx solid {{roomDetail.borderColor}};">
+            <text class="rd-price-label">周卡</text>
+            <text class="rd-price-amount" style="color:{{roomDetail.color}};">¥{{roomDetail.pricePerWeek}}</text>
+            <text class="rd-price-unit">/周</text>
+          </view>
+        </view>
+
+        <view class="rd-features">
+          <text class="rd-features-title">核心配置</text>
+          <view class="rd-feature-item" wx:for="{{roomDetail.features}}" wx:key="title">
+            <view class="rd-feat-icon-wrap" style="background:{{roomDetail.bgColor}};">
+              <text class="rd-feat-icon">{{item.icon}}</text>
+            </view>
+            <view class="rd-feat-info">
+              <text class="rd-feat-title">{{item.title}}</text>
+              <text class="rd-feat-desc">{{item.desc}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-confirm" bindtap="closeRoomDetail" style="width:100%!important;">知道了</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 订座弹窗 -->
+  <view class="modal-overlay" wx:if="{{showReserveModal}}" bindtap="onOverlayTap">
+    <view class="modal-content reserve-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">预订座位</text>
+        <view class="modal-close" bindtap="closeReserveModal">×</view>
+      </view>
+
+      <view class="modal-body">
+        <!-- 座位信息 -->
+        <view class="reserve-info-row">
+          <text class="info-label">目标座位</text>
+          <view class="info-value-box">
+            <text class="info-seat-num">{{selectedSeat.seatNumber}}</text>
+            <view class="tag-blue" wx:if="{{currentZone}}"><text style="font-size:20rpx;">{{currentZone.name}}</text></view>
+          </view>
+        </view>
+
+        <!-- 套餐选择 -->
+        <view class="form-section">
+          <text class="form-label">套餐类型</text>
+          <view class="plan-grid">
+            <view
+              class="plan-chip {{planType === 'hour' ? 'chip-active' : ''}}"
+              bindtap="setPlanType"
+              data-type="hour"
+            >
+              <text class="plan-name">小时</text>
+              <text class="plan-rate">¥{{currentZone.pricePerHour || 3}}/小时</text>
+            </view>
+            <view
+              class="plan-chip {{planType === 'day' ? 'chip-active' : ''}}"
+              bindtap="setPlanType"
+              data-type="day"
+            >
+              <text class="plan-name">天卡</text>
+              <text class="plan-rate">¥{{currentZone.pricePerDay || 21}}/天</text>
+            </view>
+            <view
+              class="plan-chip {{planType === 'week' ? 'chip-active' : ''}}"
+              bindtap="setPlanType"
+              data-type="week"
+            >
+              <text class="plan-name">周卡</text>
+              <text class="plan-rate">¥{{currentZone.pricePerWeek || 126}}/周</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 数量选择 -->
+        <view class="form-section">
+          <text class="form-label">购买数量</text>
+          <picker mode="selector" range="{{quantityOptions}}" value="{{quantityIndex}}" bindchange="bindQuantityChange">
+            <view class="picker-display">
+              <text>{{quantityOptions[quantityIndex]}} {{planUnitText}}</text>
+              <text class="picker-arrow">▾</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 到期时间 -->
+        <view class="expire-info" wx:if="{{expireDate}}">
+          <view class="expire-icon">🕐</view>
+          <view class="expire-detail">
+            <text class="expire-lbl">预计到期时间</text>
+            <text class="expire-val">{{expireDate}}</text>
+          </view>
+        </view>
+
+        <!-- 优惠券 -->
+        <view class="coupon-trigger" bindtap="openCouponPicker">
+          <view class="ct-left">
+            <text class="ct-icon">🎫</text>
+            <text class="ct-lbl">优惠券</text>
+          </view>
+          <view class="ct-right">
+            <text class="ct-selected" wx:if="{{selectedCoupon}}">已选 -¥{{selectedCoupon.discountAmount}}</text>
+            <text class="ct-placeholder" wx:else>{{availableCoupons.length > 0 ? availableCoupons.length + '张可用' : '暂无'}}</text>
+            <text class="ct-arrow">›</text>
+          </view>
+        </view>
+
+        <!-- 价格汇总 -->
+        <view class="price-summary">
+          <text class="price-lbl">应付金额</text>
+          <view class="price-right">
+            <text class="price-old" wx:if="{{selectedCoupon && finalPrice < totalPrice}}">¥{{totalPrice}}</text>
+            <text class="price-now">¥{{finalPrice}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="btn-cancel" bindtap="closeReserveModal">取消</button>
+        <button class="btn-confirm" bindtap="confirmReserve">确认预订</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 二级弹窗：优惠券选择器 -->
+  <view class="modal-overlay modal-overlay-l2" wx:if="{{showReserveModal && showCouponPicker}}" catchtap="closeCouponPicker">
+    <view class="modal-content coupon-picker-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">🎫 选择优惠券</text>
+        <view class="modal-close" bindtap="closeCouponPicker">×</view>
+      </view>
+
+      <view class="cpm-body">
+        <view wx:if="{{availableCoupons.length === 0}}" class="cpm-empty">
+          <text class="cpm-empty-icon">🎫</text>
+          <text class="cpm-empty-text">暂无可用优惠券</text>
+          <text class="cpm-empty-sub">多参与活动获取优惠券吧～</text>
+        </view>
+
+        <scroll-view scroll-y="{{true}}" style="max-height:560rpx;" wx:else>
+          <view class="cpm-list">
+            <view
+              class="cpm-item {{item._id === selectedCouponId ? 'cpm-sel' : ''}}"
+              wx:for="{{availableCoupons}}"
+              wx:key="_id"
+              data-id="{{item._id}}"
+              bindtap="selectCouponInPicker"
+            >
+              <view class="cpm-left">
+                <text class="cpm-amt">¥{{item.discountAmount}}</text>
+                <text class="cpm-type">{{item.type}}</text>
+              </view>
+              <view class="cpm-mid">
+                <text class="cpm-name">{{item.name || '全场通用券'}}</text>
+                <text class="cpm-scope">全场座位预约可用</text>
+                <text class="cpm-date" wx:if="{{item.expireAt}}">{{item.formattedExpireDate || '长期有效'}}</text>
+              </view>
+              <view class="cpm-check-wrap">
+                <view class="cpm-check {{item._id === selectedCouponId ? 'checked' : ''}}">
+                  {{item._id === selectedCouponId ? '✓' : ''}}
+                </view>
+              </view>
+            </view>
+
+            <view
+              class="cpm-item cpm-none-opt {{!selectedCouponId ? 'cpm-sel' : ''}}"
+              bindtap="deselectCouponInPicker"
+            >
+              <view class="cpm-left">
+                <text class="cpm-amt-none">不使用</text>
+              </view>
+              <view class="cpm-mid">
+                <text class="cpm-name">不使用优惠券</text>
+                <text class="cpm-scope">按原价支付</text>
+              </view>
+              <view class="cpm-check-wrap">
+                <view class="cpm-check {{!selectedCouponId ? 'checked' : ''}}">
+                  {{!selectedCouponId ? '✓' : ''}}
+                </view>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="cpm-footer">
+        <button class="btn-confirm btn-cpm-confirm" bindtap="confirmCouponPick">确定</button>
+      </view>
+    </view>
+  </view>
+</view>
