@@ -6,7 +6,10 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
         "datav-vue3-plus": "^1.7.2",
@@ -17,6 +20,9 @@
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^5.0.3",
-        "vite": "^5.0.12"
+        "@vue/test-utils": "^2.4.10",
+        "jsdom": "^29.1.1",
+        "vite": "^5.0.12",
+        "vitest": "^4.1.6"
     }
 }

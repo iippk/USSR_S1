@@ -1,4 +1,6 @@
 {
+  "miniprogramRoot": "Mini-program_end/miniprogram/",
+  "cloudfunctionRoot": "Mini-program_end/cloudfunctions/",
   "setting": {
     "es6": true,
     "postcss": true,
@@ -14,11 +16,13 @@
     "useCompilerPlugins": false
   },
   "compileType": "miniprogram",
+  "srcMiniprogramRoot": "Mini-program_end/miniprogram/",
   "simulatorPluginLibVersion": {},
   "packOptions": {
     "ignore": [],
     "include": []
   },
   "appid": "wxd04fb5cb7b521596",
+  "projectname": "USSR_S1",
   "editorSetting": {}
 }
