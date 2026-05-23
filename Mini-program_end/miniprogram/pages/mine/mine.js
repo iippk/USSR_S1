@@ -1,6 +1,9 @@
 // mine.js - 个人中心页面
+var i18n = require('../../i18n/i18n.js')
 Page({
   data: {
+    i18n: {},
+    currentLang: 'zh-CN',
     userInfo: null,
     studyRecords: [],
     pagedRecords: [],
@@ -21,11 +24,19 @@ Page({
     defaultAvatar: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
   },
 
+  applyLanguage: function() {
+    var lang = i18n.getCurrentLang()
+    var text = i18n.getPageText('mine')
+    this.setData({ i18n: text, currentLang: lang })
+  },
+
   onLoad: function() {
+    this.applyLanguage();
     this.initData();
   },
 
   onShow: function() {
+    this.applyLanguage();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 4 });
     }
@@ -225,7 +236,7 @@ Page({
     wx.getUserProfile({
       desc: "用于登录自习室系统",
       success: function(userRes) {
-        wx.showLoading({ title: "登录中" });
+        wx.showLoading({ title: that.data.i18n.loggingIn });
         wx.cloud.callFunction({
           name: "login",
           data: { userInfo: userRes.userInfo },
@@ -240,23 +251,23 @@ Page({
               that.getStudyRecords();
               that.getOrders();
               wx.hideLoading();
-              wx.showToast({ title: "登录成功", icon: "success" });
+              wx.showToast({ title: that.data.i18n.loginSuccess, icon: "success" });
             } else {
               wx.hideLoading();
-              wx.showToast({ title: "登录失败", icon: "none" });
+              wx.showToast({ title: that.data.i18n.loginFailed, icon: "none" });
             }
           },
           fail: function(err) {
             wx.hideLoading();
-            wx.showToast({ title: "请部署云函数", icon: "none" });
+            wx.showToast({ title: that.data.i18n.deployCloudFirst, icon: "none" });
           }
         });
       },
       fail: function(err) {
         if (err.errMsg && err.errMsg.indexOf('user deny') !== -1) {
           wx.showModal({
-            title: '授权提示',
-            content: '您已拒绝授权，请在微信设置中重新授权小程序获取用户信息',
+            title: that.data.i18n.authTip,
+            content: that.data.i18n.authDeniedContent,
             success: function(modalRes) {
               if (modalRes.confirm) {
                 wx.openSetting({});
@@ -264,7 +275,7 @@ Page({
             }
           });
         } else {
-          wx.showToast({ title: "授权失败", icon: "none" });
+          wx.showToast({ title: that.data.i18n.authFailed, icon: "none" });
         }
       }
     });
@@ -331,8 +342,8 @@ Page({
   handleLogout: function() {
     var that = this;
     wx.showModal({
-      title: '退出登录',
-      content: '确定要退出登录吗？',
+      title: that.data.i18n.logoutTitle,
+      content: that.data.i18n.logoutConfirm,
       success: function(res) {
         if (res.confirm) {
           var app = getApp();
@@ -354,7 +365,7 @@ Page({
             studyRecords: [],
             orders: []
           });
-          wx.showToast({ title: '已退出登录', icon: 'success' });
+          wx.showToast({ title: that.data.i18n.loggedOut, icon: 'success' });
         }
       }
     });
@@ -384,32 +395,32 @@ Page({
     var that = this;
     var newNickname = this.data.newNickname.trim();
     if (!newNickname || newNickname.length < 2) {
-      wx.showToast({ title: '昵称长度至少2个字符', icon: 'none' });
+      wx.showToast({ title: that.data.i18n.nicknameMinLen, icon: 'none' });
       return;
     }
     if (newNickname.length > 20) {
-      wx.showToast({ title: '昵称长度不能超过20个字符', icon: 'none' });
+      wx.showToast({ title: that.data.i18n.nicknameMaxLen, icon: 'none' });
       return;
     }
-    wx.showLoading({ title: '修改中...' });
+    wx.showLoading({ title: that.data.i18n.modifying });
     wx.cloud.callFunction({
       name: 'updateUserInfo',
       data: { nickName: newNickname },
       success: function(res) {
         wx.hideLoading();
         if (res.result.success) {
-          wx.showToast({ title: '昵称更新成功', icon: 'success' });
+          wx.showToast({ title: that.data.i18n.nicknameUpdateSuccess, icon: 'success' });
           var app = getApp();
           var newUserInfo = Object.assign({}, res.result.data);
           app.saveUserInfo(newUserInfo);
           that.setData({ userInfo: newUserInfo, showNicknameDialog: false, newNickname: '' });
         } else {
-          wx.showToast({ title: res.result.error || '更新失败', icon: 'none' });
+          wx.showToast({ title: res.result.error || that.data.i18n.updateFailed, icon: 'none' });
         }
       },
       fail: function(err) {
         wx.hideLoading();
-        wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.updateFailedRetry, icon: 'none' });
       }
     });
   },
@@ -437,7 +448,7 @@ Page({
         that.uploadAvatarToCloud(tempFilePaths[0]);
       },
       fail: function(err) {
-        wx.showToast({ title: '选择头像失败', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.selectAvatarFailed, icon: 'none' });
       }
     });
   },
@@ -448,7 +459,7 @@ Page({
 
   uploadAvatarToCloud: function(tempFilePath) {
     var that = this;
-    wx.showLoading({ title: '上传中...' });
+    wx.showLoading({ title: that.data.i18n.uploading });
     var app = getApp();
     var openid = app.globalData.userInfo ? app.globalData.userInfo._openid : 'unknown';
     var cloudPath = 'avatars/' + openid + '_' + Date.now() + '.jpg';
@@ -461,32 +472,32 @@ Page({
       },
       fail: function(err) {
         wx.hideLoading();
-        wx.showToast({ title: '上传头像失败', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.uploadAvatarFailed, icon: 'none' });
       }
     });
   },
 
   updateAvatar: function(avatarUrl) {
     var that = this;
-    wx.showLoading({ title: '更新中...' });
+    wx.showLoading({ title: that.data.i18n.updating });
     wx.cloud.callFunction({
       name: 'updateAvatar',
       data: { avatarUrl: avatarUrl },
       success: function(res) {
         wx.hideLoading();
         if (res.result.success) {
-          wx.showToast({ title: '头像更新成功', icon: 'success' });
+          wx.showToast({ title: that.data.i18n.avatarUpdateSuccess, icon: 'success' });
           var app = getApp();
           var newUserInfo = Object.assign({}, res.result.data);
           app.saveUserInfo(newUserInfo);
           that.setData({ userInfo: newUserInfo, showAvatarDialog: false });
         } else {
-          wx.showToast({ title: res.result.error || '更新失败', icon: 'none' });
+          wx.showToast({ title: res.result.error || that.data.i18n.updateFailed, icon: 'none' });
         }
       },
       fail: function(err) {
         wx.hideLoading();
-        wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.updateFailedRetry, icon: 'none' });
       }
     });
   },

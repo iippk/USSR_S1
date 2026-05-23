@@ -1,5 +1,8 @@
+var i18n = require('../../i18n/i18n.js')
 Page({
   data: {
+    i18n: {},
+    currentLang: 'zh-CN',
     coupons: [],
     filteredCoupons: [],
     isLoading: true,
@@ -12,12 +15,19 @@ Page({
     isLoadingPool: false
   },
 
+  applyLanguage: function() {
+    var lang = i18n.getCurrentLang()
+    this.setData({ i18n: i18n.getPageText('coupons'), currentLang: lang })
+  },
+
   onLoad: function() {
+    this.applyLanguage();
     this.getCoupons();
     this.getPoolCoupons();
   },
 
   onShow: function() {
+    this.applyLanguage();
     this.getCoupons();
     this.getPoolCoupons();
   },
@@ -47,7 +57,7 @@ Page({
               createdAt: item.createdAt,
               userId: item.userId,
               source: item.source,
-              formattedExpireDate: item.expireAt ? that.formatDate(item.expireAt) : '长期有效',
+              formattedExpireDate: item.expireAt ? that.formatDate(item.expireAt) : that.data.i18n.longTermValid,
               formattedUsedAt: item.usedAt ? that.formatDate(item.usedAt) : '',
               isExpired: item.expireAt ? new Date(item.expireAt) <= new Date() : false
             });
@@ -97,7 +107,7 @@ Page({
         if (res.result && res.result.success) {
           var poolList = res.result.data || [];
           for (var i = 0; i < poolList.length; i++) {
-            poolList[i].formattedExpireDate = poolList[i].expireAt ? that.formatDate(poolList[i].expireAt) : '长期有效';
+            poolList[i].formattedExpireDate = poolList[i].expireAt ? that.formatDate(poolList[i].expireAt) : that.data.i18n.longTermValid;
           }
           that.setData({ poolCoupons: poolList, isLoadingPool: false });
         } else {
@@ -115,23 +125,23 @@ Page({
     if (!couponType) return;
 
     var that = this;
-    wx.showLoading({ title: '领取中...' });
+    wx.showLoading({ title: that.data.i18n.claiming });
     wx.cloud.callFunction({
       name: 'couponManager',
       data: { action: 'claimPoolCoupon', couponType: couponType },
       success: function(res) {
         wx.hideLoading();
         if (res.result && res.result.success) {
-          wx.showToast({ title: '领取成功！', icon: 'success' });
+          wx.showToast({ title: that.data.i18n.claimSuccess, icon: 'success' });
           that.getCoupons();
           that.getPoolCoupons();
         } else {
-          wx.showToast({ title: res.result.error || '领取失败', icon: 'none' });
+          wx.showToast({ title: res.result.error || that.data.i18n.claimFailed, icon: 'none' });
         }
       },
       fail: function() {
         wx.hideLoading();
-        wx.showToast({ title: '网络错误', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.networkError, icon: 'none' });
       }
     });
   },
@@ -175,9 +185,9 @@ Page({
 
   getEmptyText: function() {
     var ct = this.data.currentTab;
-    if (ct === 'available') return '暂无可用优惠券';
-    if (ct === 'used') return '暂无已使用记录';
-    return '暂无已过期优惠券';
+    if (ct === 'available') return this.data.i18n.noAvailableCoupon;
+    if (ct === 'used') return this.data.i18n.noUsedRecord;
+    return this.data.i18n.noCouponsExpired;
   },
 
   formatDate: function(date) {
@@ -192,13 +202,13 @@ Page({
   },
 
   refreshData: function() {
-    wx.showLoading({ title: '刷新中...' });
+    var that = this;
+    wx.showLoading({ title: that.data.i18n.refreshing });
     this.getCoupons();
     this.getPoolCoupons();
-    var that = this;
     setTimeout(function() {
       wx.hideLoading();
-      wx.showToast({ title: '刷新成功', icon: 'success' });
+      wx.showToast({ title: that.data.i18n.refreshSuccess, icon: 'success' });
     }, 500);
   }
 });

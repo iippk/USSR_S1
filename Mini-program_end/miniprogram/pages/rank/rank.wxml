@@ -4,14 +4,14 @@
   <view class="card-gradient-cyan rank-header fade-up">
     <view class="rh-glass"></view>
     <view class="rh-content">
-      <text class="rh-title">🏆 学习排行榜</text>
-      <text class="rh-sub">实时更新 · 激励学习</text>
+      <text class="rh-title">🏆 {{i18n.title}}</text>
+      <text class="rh-sub">{{i18n.subtitle}}</text>
 
       <!-- 排行类型切换 -->
       <view class="rank-type-switch">
-        <view class="rts-btn {{rankType === 'total' ? 'rts-active' : ''}}" data-type="total" bindtap="switchRankType"><text>总排行</text></view>
-        <view class="rts-btn {{rankType === 'today' ? 'rts-active' : ''}}" data-type="today" bindtap="switchRankType"><text>今日</text></view>
-        <view class="rts-btn {{rankType === 'week' ? 'rts-active' : ''}}" data-type="week" bindtap="switchRankType"><text>本周</text></view>
+        <view class="rts-btn {{rankType === 'total' ? 'rts-active' : ''}}" data-type="total" bindtap="switchRankType"><text>{{i18n.totalRank}}</text></view>
+        <view class="rts-btn {{rankType === 'today' ? 'rts-active' : ''}}" data-type="today" bindtap="switchRankType"><text>{{i18n.todayRank}}</text></view>
+        <view class="rts-btn {{rankType === 'week' ? 'rts-active' : ''}}" data-type="week" bindtap="switchRankType"><text>{{i18n.weekRank}}</text></view>
       </view>
     </view>
   </view>
@@ -20,10 +20,10 @@
   <view class="my-rank-card card-neu fade-up" style="animation-delay: 0.06s;" wx:if="{{currentUserRank}}">
     <view class="mrc-left">
       <view class="mrc-rank-num font-mono">#{{currentUserRank.rank}}</view>
-      <text class="mrc-name">{{currentUserRank.nickName || '我'}}</text>
+      <text class="mrc-name">{{currentUserRank.nickName || i18n.me}}</text>
     </view>
     <view class="mrc-right">
-      <text class="mrc-time-label">累计学时</text>
+      <text class="mrc-time-label">{{i18n.totalStudyTime}}</text>
       <text class="mrc-time-val font-mono">{{currentUserRank.formattedTime || '-'}}</text>
     </view>
   </view>
@@ -31,13 +31,13 @@
   <!-- 刷新按钮 -->
   <view class="refresh-row" wx:if="{{!isLoading}}">
     <view class="refresh-chip-premium" bindtap="refreshRanking">
-      <text class="rc-icon">↻</text><text>刷新数据</text>
+      <text class="rc-icon">↻</text><text>{{i18n.refreshData}}</text>
     </view>
   </view>
 
   <!-- 加载状态 -->
   <view class="loading-box fade-up" wx:if="{{isLoading}}">
-    <view class="loading-spinner"></view><text>加载排行榜...</text>
+    <view class="loading-spinner"></view><text>{{i18n.loadingRank}}</text>
   </view>
 
   <!-- 排行列表区域（始终显示） -->
@@ -67,15 +67,15 @@
               <text class="uas-emoji" wx:else>{{(currentPage - 1) * pageSize + index < 3 ? ((currentPage - 1) * pageSize + index === 0 ? '🥇' : (currentPage - 1) * pageSize + index === 1 ? '🥈' : '🥉') : '👤'}}</text>
             </view>
             <view class="user-info-text">
-              <text class="uit-name">{{item.nickName || ('用户' + ((currentPage - 1) * pageSize + index + 1))}}</text>
-              <text class="uit-sub" wx:if="{{item._openid === currentUserOpenid}}">当前账号</text>
+              <text class="uit-name">{{item.nickName || (i18n.user + ((currentPage - 1) * pageSize + index + 1))}}</text>
+              <text class="uit-sub" wx:if="{{item._openid === currentUserOpenid}}">{{i18n.currentAccount}}</text>
             </view>
           </view>
 
           <!-- 学时 -->
           <view class="ri-time-col">
             <text class="rit-val font-mono">{{item.formattedTime || '-'}}</text>
-            <text class="rit-label">学时</text>
+            <text class="rit-label">{{i18n.studyTime}}</text>
           </view>
         </view>
       </block>
@@ -105,20 +105,20 @@
     <!-- 完全无数据时的提示 -->
     <view class="empty-rec" wx:if="{{ranking.length === 0}}">
       <text class="empty-icon">🏆</text>
-      <text class="empty-text">{{rankType === 'total' ? '暂无排行数据' : rankType === 'today' ? '今日暂无学习记录' : '本周暂无学习记录'}}</text>
-      <text class="empty-tip">开始学习后即可上榜</text>
+      <text class="empty-text">{{rankType === 'total' ? i18n.noTotalRank : rankType === 'today' ? i18n.noTodayRank : i18n.noWeekRank}}</text>
+      <text class="empty-tip">{{i18n.startToRank}}</text>
     </view>
   </view>
 
   <!-- 分页器（始终显示，固定在排行榜底部） -->
   <view class="pagination-section pg-cyan">
-    <view class="pg-btn {{currentPage <= 1 || totalPages <= 1 ? 'pg-disabled' : ''}}" bindtap="prevPage">◀ 上一页</view>
+    <view class="pg-btn {{currentPage <= 1 || totalPages <= 1 ? 'pg-disabled' : ''}}" bindtap="prevPage">◀ {{i18n.prevPage}}</view>
     <view class="pg-center">
       <text class="pg-cur">{{currentPage}}</text>
       <text class="pg-slash">/</text>
       <text class="pg-total">{{totalPages}}</text>
     </view>
-    <view class="pg-btn {{currentPage >= totalPages || totalPages <= 1 ? 'pg-disabled' : ''}}" bindtap="nextPage">下一页 ▶</view>
+    <view class="pg-btn {{currentPage >= totalPages || totalPages <= 1 ? 'pg-disabled' : ''}}" bindtap="nextPage">{{i18n.nextPage}} ▶</view>
   </view>
 
   <!-- ====== 留言板区域 ====== -->
@@ -126,10 +126,10 @@
     <view class="mbs-header">
       <view class="mbs-left">
         <text class="mbs-icon">💬</text>
-        <text class="mbs-title">学习留言板</text>
-        <text class="mbs-sub">每周更新 · 按热度排序</text>
+        <text class="mbs-title">{{i18n.messageBoard}}</text>
+        <text class="mbs-sub">{{i18n.messageBoardSub}}</text>
       </view>
-      <button class="btn-write-message" bindtap="toggleMessageInput">✏️ 写留言</button>
+      <button class="btn-write-message" bindtap="toggleMessageInput">✏️ {{i18n.writeMessage}}</button>
     </view>
 
     <!-- 留言输入框（可展开/收起） -->
@@ -137,16 +137,16 @@
       <textarea
         class="message-textarea"
         value="{{messageContent}}"
-        placeholder="分享你的学习心得或鼓励大家吧~ (最多200字)"
+        placeholder="{{i18n.messagePlaceholder}}"
         maxlength="200"
         bindinput="onMessageInput"
         auto-height
       />
       <view class="mi-actions">
         <text class="mi-count">{{messageContent.length}}/200</text>
-        <button class="btn-cancel" size="mini" bindtap="toggleMessageInput">取消</button>
+        <button class="btn-cancel" size="mini" bindtap="toggleMessageInput">{{i18n.cancel}}</button>
         <button class="btn-confirm btn-send-msg" size="mini" bindtap="submitMessage" disabled="{{isSubmittingMessage}}">
-          {{isSubmittingMessage ? '发送中...' : '发送'}}
+          {{isSubmittingMessage ? i18n.sending : i18n.send}}
         </button>
       </view>
     </view>
@@ -156,7 +156,7 @@
       <!-- 加载状态 -->
       <view class="loading-box" wx:if="{{isLoadingMessages}}">
         <view class="loading-spinner"></view>
-        <text>加载留言...</text>
+        <text>{{i18n.loadingMessages}}</text>
       </view>
 
       <!-- 留言列表 -->
@@ -170,7 +170,7 @@
               mode="aspectFill"
             />
             <view wx:else class="msg-avatar-default">
-              <text>{{item.nickName[0] || '用'}}</text>
+              <text>{{item.nickName[0] || i18n.userInitial}}</text>
             </view>
           </view>
           <view class="msg-right">
@@ -198,8 +198,8 @@
       <!-- 空状态 -->
       <view wx:else class="empty-messages">
         <text class="empty-icon">💬</text>
-        <text class="empty-text">暂无留言</text>
-        <text class="empty-tip">成为第一个留言的人吧～</text>
+        <text class="empty-text">{{i18n.noMessages}}</text>
+        <text class="empty-tip">{{i18n.beFirst}}</text>
       </view>
     </scroll-view>
   </view>

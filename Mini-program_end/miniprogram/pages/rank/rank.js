@@ -1,6 +1,9 @@
 // rank.js - 排行榜页面 · v5.0 (彻底修复今日榜 + 增强验证)
+var i18n = require('../../i18n/i18n.js')
 Page({
   data: {
+    i18n: {},
+    currentLang: 'zh-CN',
     ranking: [],
     pagedRanking: [],
     isLoading: true,
@@ -18,7 +21,14 @@ Page({
     emptySlots: []
   },
 
+  applyLanguage: function() {
+    var lang = i18n.getCurrentLang()
+    var text = i18n.getPageText('rank')
+    this.setData({ i18n: text, currentLang: lang })
+  },
+
   onLoad: function() {
+    this.applyLanguage();
     this.checkLoginStatus();
     var app = getApp();
     if (app.globalData.userInfo) {
@@ -29,6 +39,7 @@ Page({
   },
 
   onShow: function() {
+    this.applyLanguage();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 3 });
     }
@@ -40,8 +51,8 @@ Page({
     var app = getApp();
     if (!app.globalData.userInfo) {
       wx.showModal({
-        title: '提示',
-        content: '请先登录后查看排行榜',
+        title: this.data.i18n.tip,
+        content: this.data.i18n.loginToViewRank,
         success: function(res) {
           if (res.confirm) {
             wx.switchTab({ url: '/pages/mine/mine' });
@@ -189,7 +200,7 @@ Page({
           pagedRanking: []
         });
         wx.showToast({ 
-          title: '获取排行榜失败', 
+          title: that.data.i18n.getRankFailed, 
           icon: 'none',
           duration: 2000
         });
@@ -199,12 +210,12 @@ Page({
 
   refreshRanking: function() {
     console.log('[Rank Page] 🔄 用户手动刷新排行榜');
-    wx.showLoading({ title: '刷新中...' });
+    wx.showLoading({ title: this.data.i18n.refreshing });
     this.getRanking();
     var that = this;
     setTimeout(function() {
       wx.hideLoading();
-      wx.showToast({ title: '刷新成功', icon: 'success' });
+      wx.showToast({ title: that.data.i18n.refreshSuccess, icon: 'success' });
     }, 500);
   },
 
@@ -302,10 +313,10 @@ Page({
           var likedBy = item.likedBy || [];
           var isLiked = currentOpenid && likedBy.indexOf(currentOpenid) !== -1;
 
-          var displayNickName = item.nickName || '匿名用户';
+          var displayNickName = item.nickName || that.data.i18n.anonymousUser;
           var displayAvatarUrl = item.avatarUrl || '';
           if (item.userId === currentOpenid && currentUserInfo._openid) {
-            displayNickName = currentUserInfo.nickName || '匿名用户';
+            displayNickName = currentUserInfo.nickName || that.data.i18n.anonymousUser;
             displayAvatarUrl = currentUserInfo.avatarUrl || '';
           }
 
@@ -348,8 +359,8 @@ Page({
     var app = getApp();
     if (!app.globalData.userInfo) {
       wx.showModal({
-        title: '提示',
-        content: '请先登录后留言',
+        title: that.data.i18n.tip,
+        content: that.data.i18n.loginToMessage,
         success: function(res) {
           if (res.confirm) { wx.switchTab({ url: '/pages/mine/mine' }); }
         }
@@ -367,11 +378,11 @@ Page({
     var that = this;
     var content = this.data.messageContent.trim();
     if (!content) {
-      wx.showToast({ title: '请输入留言内容', icon: 'none' });
+      wx.showToast({ title: this.data.i18n.inputMessage, icon: 'none' });
       return;
     }
     if (content.length > 200) {
-      wx.showToast({ title: '留言不能超过200字', icon: 'none' });
+      wx.showToast({ title: this.data.i18n.messageTooLong, icon: 'none' });
       return;
     }
 
@@ -393,16 +404,16 @@ Page({
       success: function(res) {
         that.setData({ isSubmittingMessage: false, showMessageInput: false, messageContent: '' });
         if (res.result && res.result.success) {
-          wx.showToast({ title: '留言成功', icon: 'success' });
+          wx.showToast({ title: that.data.i18n.messageSuccess, icon: 'success' });
           that.getMessages();
         } else {
-          wx.showToast({ title: res.result.error || '留言失败', icon: 'none' });
+          wx.showToast({ title: res.result.error || that.data.i18n.messageFailed, icon: 'none' });
         }
       },
       fail: function(err) {
         that.setData({ isSubmittingMessage: false });
         console.error('留言失败:', err);
-        wx.showToast({ title: '留言失败，请重试', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.messageFailedRetry, icon: 'none' });
       }
     });
   },
@@ -413,8 +424,8 @@ Page({
     var app = getApp();
     if (!app.globalData.userInfo) {
       wx.showModal({
-        title: '提示',
-        content: '请先登录后点赞',
+        title: that.data.i18n.tip,
+        content: that.data.i18n.loginToLike,
         success: function(res) {
           if (res.confirm) { wx.switchTab({ url: '/pages/mine/mine' }); }
         }
@@ -469,14 +480,14 @@ Page({
     var messageId = e.currentTarget.dataset.id;
     var app = getApp();
     if (!app.globalData.userInfo) {
-      wx.showToast({ title: '请先登录', icon: 'none' });
+      wx.showToast({ title: this.data.i18n.loginFirst, icon: 'none' });
       return;
     }
 
     wx.showModal({
-      title: '确认删除',
-      content: '确定要删除这条留言吗？删除后无法恢复。',
-      confirmText: '删除',
+      title: that.data.i18n.confirmDelete,
+      content: that.data.i18n.confirmDeleteContent,
+      confirmText: that.data.i18n.deleteText,
       confirmColor: '#EF4444',
       success: function(res) {
         if (res.confirm) {
@@ -489,15 +500,15 @@ Page({
             },
             success: function(res) {
               if (res.result && res.result.success) {
-                wx.showToast({ title: '删除成功', icon: 'success' });
+                wx.showToast({ title: that.data.i18n.deleteSuccess, icon: 'success' });
                 that.getMessages();
               } else {
-                wx.showToast({ title: res.result.error || '删除失败', icon: 'none' });
+                wx.showToast({ title: res.result.error || that.data.i18n.deleteFailed, icon: 'none' });
               }
             },
             fail: function(err) {
               console.error('删除留言失败:', err);
-              wx.showToast({ title: '删除失败，请重试', icon: 'none' });
+              wx.showToast({ title: that.data.i18n.deleteFailedRetry, icon: 'none' });
             }
           });
         }

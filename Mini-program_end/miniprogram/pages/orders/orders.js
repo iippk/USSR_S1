@@ -1,15 +1,25 @@
 // orders.js - 订单列表页面
+var i18n = require('../../i18n/i18n.js')
 Page({
   data: {
+    i18n: {},
+    currentLang: 'zh-CN',
     orders: [],
     isLoading: true
   },
 
+  applyLanguage: function() {
+    var lang = i18n.getCurrentLang()
+    this.setData({ i18n: i18n.getPageText('orders'), currentLang: lang })
+  },
+
   onLoad: function() {
+    this.applyLanguage();
     this.getOrders();
   },
 
   onShow: function() {
+    this.applyLanguage();
     this.getOrders();
   },
 
@@ -45,7 +55,7 @@ Page({
             var finalPriceVal = (item.couponUsed && item.couponDiscount > 0)
               ? Math.max(0, (item.totalPrice || 0) - (item.couponDiscount || 0))
               : (item.totalPrice || 0);
-            var unitTextVal = item.planType === 'hour' ? '小时' : item.planType === 'day' ? '天' : '周';
+            var unitTextVal = item.planType === 'hour' ? that.data.i18n.hour : item.planType === 'day' ? that.data.i18n.day : that.data.i18n.week;
 
             orders.push({
               _id: item._id,
@@ -130,8 +140,8 @@ Page({
     var that = this;
     var id = e.currentTarget.dataset.id;
     wx.showModal({
-      title: '确认取消',
-      content: '确定要取消该订单吗？取消后座位将释放',
+      title: that.data.i18n.cancelOrderConfirmTitle,
+      content: that.data.i18n.cancelOrderConfirm,
       confirmColor: '#EF4444',
       success: function(res) {
         if (res.confirm) {
@@ -139,9 +149,9 @@ Page({
             name: 'orderManager', data: { action: 'cancelOrder', orderId: id },
             success: function(cRes) {
               if (cRes.result.success) {
-                wx.showToast({ title: '已取消', icon: 'success' });
+                wx.showToast({ title: that.data.i18n.cancelOrderSuccess, icon: 'success' });
                 that.getOrders();
-              } else { wx.showToast({ title: cRes.result.message || '取消失败', icon: 'none' }); }
+              } else { wx.showToast({ title: cRes.result.message || that.data.i18n.cancelFailed, icon: 'none' }); }
             }
           });
         }

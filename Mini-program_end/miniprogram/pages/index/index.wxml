@@ -4,7 +4,7 @@
   <view class="maintenance-banner" wx:if="{{maintenanceMode}}">
     <text class="mb-icon">🔧</text>
     <view class="mb-body">
-      <text class="mb-title">系统维护中</text>
+      <text class="mb-title">{{i18n.maintenanceTitle}}</text>
       <text class="mb-msg">{{maintenanceMessage}}</text>
     </view>
   </view>
@@ -29,22 +29,26 @@
             <view class="status-dot-wrap"><view class="status-dot online"></view></view>
           </view>
           <view class="name-row" wx:else>
-            <text class="uc-name">未登录</text>
-            <text class="login-hint">点击登录</text>
+            <text class="uc-name">{{i18n.notLoggedIn}}</text>
+            <text class="login-hint">{{i18n.tapToLogin}}</text>
           </view>
-          <text class="uc-sub" wx:if="{{isLoggedIn}}">今日已学习 {{formattedTodayStudyTime}}</text>
-          <text class="uc-sub" wx:else>登录后查看学习数据</text>
+          <text class="uc-sub" wx:if="{{isLoggedIn}}">{{i18n.todayStudied}} {{formattedTodayStudyTime}}</text>
+          <text class="uc-sub" wx:else>{{i18n.loginToViewData}}</text>
         </view>
 
-        <view class="uc-actions" wx:if="{{isLoggedIn}}">
-          <button class="btn-logout-mini" catchtap="handleLogout">退出</button>
+        <view class="uc-actions">
+          <view class="lang-switch-btn" bindtap="openLangModal">
+            <text class="lsb-icon">🌐</text>
+            <text class="lsb-text">{{currentLang === 'zh-CN' ? '简' : currentLang === 'zh-TW' ? '繁' : 'EN'}}</text>
+          </view>
+          <button class="btn-logout-mini" catchtap="handleLogout" wx:if="{{isLoggedIn}}">{{i18n.logout}}</button>
         </view>
       </view>
 
       <!-- 今日学时目标 -->
       <view class="goal-row" wx:if="{{isLoggedIn}}">
         <view class="goal-left">
-          <text class="goal-label">今日目标</text>
+          <text class="goal-label">{{i18n.todayGoal}}</text>
           <text class="goal-time font-mono">{{formattedTodayStudyTime}}</text>
           <text class="goal-slash">/</text>
           <text class="goal-target font-mono">{{dailyGoalHours}}h</text>
@@ -52,7 +56,7 @@
         <view class="goal-bar-track">
           <view class="goal-bar-fill" style="width: {{dailyGoalHours > 0 ? Math.min(100, todayStudyTime / (dailyGoalHours * 3600) * 100) : 0}}%;"></view>
         </view>
-        <button class="btn-goal-set" catchtap="openGoalModal">⚙️ 设置</button>
+        <button class="btn-goal-set" catchtap="openGoalModal">{{i18n.setGoal}}</button>
       </view>
     </view>
   </view>
@@ -60,9 +64,9 @@
   <!-- 实时数据仪表盘 -->
   <view class="dashboard-section fade-up" style="animation-delay: 0.08s;">
     <view class="ds-header">
-      <text class="ds-title">📊 实时数据</text>
+      <text class="ds-title">{{i18n.realtimeData}}</text>
       <view class="refresh-chip" bindtap="refreshData">
-        <text class="refresh-icon">↻</text><text>刷新</text>
+        <text class="refresh-icon">↻</text><text>{{i18n.refresh}}</text>
       </view>
     </view>
 
@@ -72,35 +76,35 @@
           <text class="sc-icon">🪑</text>
         </view>
         <text class="sc-num font-mono">{{seatCount}}</text>
-        <text class="sc-label">总座位</text>
+        <text class="sc-label">{{i18n.totalSeats}}</text>
       </view>
       <!-- <view class="stat-card sc-total">
         <view class="sc-icon-wrap total">
           <text class="sc-icon">🪑</text>
         </view>
         <text class="sc-num font-mono">{{seatCount}}</text>
-        <text class="sc-label">总座位</text>
+        <text class="sc-label">{{i18n.totalSeats}}</text>
       </view> -->
       <view class="stat-card sc-available">
         <view class="sc-icon-wrap avail">
           <text class="sc-icon">✅</text>
         </view>
         <text class="sc-num font-mono text-primary">{{availableSeatCount}}</text>
-        <text class="sc-label">空闲</text>
+        <text class="sc-label">{{i18n.free}}</text>
       </view>
       <view class="stat-card sc-using">
         <view class="sc-icon-wrap using">
           <text class="sc-icon">📖</text>
         </view>
         <text class="sc-num font-mono">{{usingSeatCount}}</text>
-        <text class="sc-label">使用中</text>
+        <text class="sc-label">{{i18n.inUse}}</text>
       </view>
       <view class="stat-card sc-fix">
         <view class="sc-icon-wrap fix">
           <text class="sc-icon">⚠️</text>
         </view>
         <text class="sc-num font-mono text-warn">{{fixSeatCount}}</text>
-        <text class="sc-label">维护中</text>
+        <text class="sc-label">{{i18n.maintenance}}</text>
       </view>
     </view>
 
@@ -111,21 +115,21 @@
   <view class="announcement-section fade-up" style="animation-delay: 0.16s;" wx:if="{{announcements.length > 0}}" bindtap="goToAnnouncementList">
     <view class="ann-header">
       <view class="ann-header-left">
-        <text class="ann-title">📢 系统公告</text>
-        <view class="ann-count-badge" wx:if="{{announcements.length > 1}}">{{announcements.length}}条</view>
+        <text class="ann-title">{{i18n.announcement}}</text>
+        <view class="ann-count-badge" wx:if="{{announcements.length > 1}}">{{announcements.length}}{{i18n.countUnit}}</view>
       </view>
       <view class="ann-more">
-        <text>查看全部</text>
+        <text>{{i18n.viewAll}}</text>
         <text class="ann-arrow">›</text>
       </view>
     </view>
     <view class="ann-latest" wx:if="{{announcements.length > 0}}">
-      <view class="ann-latest-tag" wx:if="{{announcements[0].isPinned}}">📌 置顶</view>
+      <view class="ann-latest-tag" wx:if="{{announcements[0].isPinned}}">{{i18n.pinned}}</view>
       <text class="ann-latest-title">{{announcements[0].title}}</text>
       <text class="ann-latest-content">{{announcements[0].content}}</text>
       <view class="ann-latest-footer">
         <text class="ann-latest-time">{{announcements[0].createdAt}}</text>
-        <text class="ann-latest-hint">点击查看详情 ›</text>
+        <text class="ann-latest-hint">{{i18n.tapToView}}</text>
       </view>
     </view>
   </view>
@@ -134,11 +138,11 @@
   <view class="online-card card-neu fade-up" style="animation-delay: 0.24s;">
     <view class="oc-left">
       <view class="online-pulse"></view>
-      <text class="oc-label">当前在线学习</text>
+      <text class="oc-label">{{i18n.onlineStudying}}</text>
     </view>
     <view class="oc-right">
       <text class="oc-num font-mono">{{onlineUserCount}}</text>
-      <text class="oc-unit">人</text>
+      <text class="oc-unit">{{i18n.person}}</text>
     </view>
   </view>
 
@@ -146,11 +150,11 @@
   <view class="modal-overlay" wx:if="{{showGoalModal}}" bindtap="onGoalOverlayTap">
     <view class="modal-content goal-modal" catchtap="preventBubble">
       <view class="modal-header">
-        <text class="modal-title">🎯 设置每日学习目标</text>
+        <text class="modal-title">{{i18n.setDailyGoal}}</text>
         <view class="modal-close" bindtap="closeGoalModal">×</view>
       </view>
       <view class="modal-body">
-        <text class="goal-desc">设置你每天的学习时长目标（小时）</text>
+        <text class="goal-desc">{{i18n.goalDesc}}</text>
         <view class="goal-options">
           <view
             class="goal-opt {{tempGoalHours === item ? 'goal-sel' : ''}}"
@@ -160,13 +164,38 @@
             data-hours="{{item}}"
           >
             <text class="goal-opt-num">{{item}}</text>
-            <text class="goal-opt-unit">小时</text>
+            <text class="goal-opt-unit">{{i18n.hour}}</text>
           </view>
         </view>
       </view>
       <view class="modal-footer">
-        <button class="btn-cancel" bindtap="closeGoalModal">取消</button>
-        <button class="btn-confirm" style="background: linear-gradient(135deg, #2563EB, #1D4ED8) !important; box-shadow: var(--shadow-blue) !important;" bindtap="saveGoal">保存目标</button>
+        <button class="btn-cancel" bindtap="closeGoalModal">{{i18n.cancel}}</button>
+        <button class="btn-confirm" style="background: linear-gradient(135deg, #2563EB, #1D4ED8) !important; box-shadow: var(--shadow-blue) !important;" bindtap="saveGoal">{{i18n.saveGoal}}</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="modal-overlay" wx:if="{{showLangModal}}" bindtap="onLangOverlayTap">
+    <view class="modal-content lang-modal" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">🌐 语言 / Language</text>
+        <view class="modal-close" bindtap="closeLangModal">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="lang-options">
+          <view class="lang-opt {{currentLang === 'zh-CN' ? 'lang-sel' : ''}}" data-lang="zh-CN" bindtap="switchLang">
+            <text class="lo-label">简体中文</text>
+            <text class="lo-desc">Simplified Chinese</text>
+          </view>
+          <view class="lang-opt {{currentLang === 'zh-TW' ? 'lang-sel' : ''}}" data-lang="zh-TW" bindtap="switchLang">
+            <text class="lo-label">繁體中文</text>
+            <text class="lo-desc">Traditional Chinese</text>
+          </view>
+          <view class="lang-opt {{currentLang === 'en' ? 'lang-sel' : ''}}" data-lang="en" bindtap="switchLang">
+            <text class="lo-label">English</text>
+            <text class="lo-desc">英语</text>
+          </view>
+        </view>
       </view>
     </view>
   </view>

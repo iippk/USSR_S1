@@ -1,6 +1,10 @@
 // index.js - 首页控制台
+var i18n = require('../../i18n/i18n.js')
 Page({
   data: {
+    i18n: {},
+    currentLang: 'zh-CN',
+    showLangModal: false,
     seatCount: 0,
     availableSeatCount: 0,
     usingSeatCount: 0,
@@ -22,6 +26,7 @@ Page({
   seatsWatcher: null,
 
   onLoad: function () {
+    this.applyLanguage();
     this.checkLoginStatus();
     this.getSeatInfo();
     this.loadAnnouncements();
@@ -31,6 +36,7 @@ Page({
   },
 
   onShow: function () {
+    this.applyLanguage();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 });
     }
@@ -50,7 +56,7 @@ Page({
     var app = getApp();
     var settings = app.globalData.systemSettings;
     if (settings && settings.maintenanceMode) {
-      this.setData({ maintenanceMode: true, maintenanceMessage: settings.maintenanceMessage || '系统维护中，请稍后再试' });
+      this.setData({ maintenanceMode: true, maintenanceMessage: settings.maintenanceMessage || this.data.i18n.systemMaintenance });
     } else {
       this.setData({ maintenanceMode: false, maintenanceMessage: '' });
     }
@@ -190,14 +196,14 @@ Page({
   handleLogout: function () {
     var that = this;
     wx.showModal({
-      title: '退出登录', content: '确定要退出登录吗？',
+      title: this.data.i18n.logoutConfirm, content: this.data.i18n.logoutContent,
       success: function (res) {
         if (res.confirm) {
           var app = getApp();
           app.globalData.userInfo = null;
           wx.removeStorageSync('userInfo');
           that.setData({ isLoggedIn: false, userInfo: null, todayStudyTime: 0, formattedTodayStudyTime: '00:00:00' });
-          wx.showToast({ title: '已退出登录', icon: 'success' });
+          wx.showToast({ title: that.data.i18n.loggedOut, icon: 'success' });
         }
       }
     });
@@ -205,12 +211,12 @@ Page({
 
   refreshData: function () {
     var that = this;
-    wx.showLoading({ title: '刷新中...' });
+    wx.showLoading({ title: this.data.i18n.refreshing });
     that.getSeatInfo();
     that.getUserStats();
     setTimeout(function () {
       wx.hideLoading();
-      wx.showToast({ title: '刷新成功', icon: 'success' });
+      wx.showToast({ title: that.data.i18n.refreshSuccess, icon: 'success' });
     }, 500);
   },
 
@@ -238,6 +244,24 @@ Page({
     var goal = this.data.tempGoalHours;
     wx.setStorageSync('dailyGoalHours', goal);
     this.setData({ dailyGoalHours: goal, showGoalModal: false });
-    wx.showToast({ title: '目标已设置：' + goal + '小时/天', icon: 'success' });
+    wx.showToast({ title: this.data.i18n.goalSet + goal + this.data.i18n.hoursPerDay, icon: 'success' });
+  },
+
+  applyLanguage: function() {
+    var lang = i18n.getCurrentLang()
+    var text = i18n.getPageText('index')
+    this.setData({ i18n: text, currentLang: lang })
+  },
+
+  openLangModal: function() { this.setData({ showLangModal: true }) },
+  closeLangModal: function() { this.setData({ showLangModal: false }) },
+  onLangOverlayTap: function(e) { if (e.target === e.currentTarget) this.closeLangModal() },
+  switchLang: function(e) {
+    var lang = e.currentTarget.dataset.lang
+    i18n.setLang(lang)
+    this.applyLanguage()
+    i18n.refreshAllPages()
+    this.closeLangModal()
+    wx.showToast({ title: i18n.getLangLabel(lang), icon: 'success' })
   }
 });

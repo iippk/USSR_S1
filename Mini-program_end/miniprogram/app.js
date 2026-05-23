@@ -1,4 +1,5 @@
 // app.js
+var i18n = require('./i18n/i18n.js')
 App({
   globalData: {
     env: "cloud1-6gwfun5cc8a627e8",
@@ -245,13 +246,14 @@ App({
   showExpiryWarning: function (seat, remainingMs) {
     var that = this;
     var remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+    var appText = i18n.t('app');
 
     wx.showModal({
-      title: '⏰ 座位即将到期',
-      content: '您的座位 ' + (seat.seatNumber || '') + ' 将在 ' + remainingSec + ' 秒后到期，系统将自动保存学习记录并释放座位。',
+      title: appText.seatExpiring,
+      content: appText.seatExpiringContent + (seat.seatNumber || '') + appText.seatExpiringMid + remainingSec + appText.seatExpiringSuffix,
       showCancel: true,
-      cancelText: '续费',
-      confirmText: '我知道了',
+      cancelText: appText.renewSeat,
+      confirmText: appText.iKnow,
       success: function (res) {
         if (res.confirm) {
           console.log('[ExpiryWarning] 用户已确认即将到期');
@@ -278,12 +280,13 @@ App({
 
     that.globalData.isReleasing = true;
     console.log('[AutoRelease] 🚀 开始执行自动释放流程 - 座位:', seat.seatNumber);
+    var appText = i18n.t('app');
 
     wx.showModal({
-      title: '座位已到期',
-      content: '您的座位 ' + (seat.seatNumber || '') + ' 使用时间已到期，系统将自动释放座位并保存您的学习记录。',
+      title: appText.seatExpired,
+      content: appText.seatExpiredContent + (seat.seatNumber || '') + appText.seatExpiredMid,
       showCancel: false,
-      confirmText: '我知道了',
+      confirmText: appText.iKnow,
       success: function () {
         wx.cloud.callFunction({
           name: 'autoreleaseseat',
@@ -309,7 +312,7 @@ App({
             }
 
             wx.showToast({
-              title: '座位已释放',
+              title: appText.seatReleased,
               icon: 'success',
               duration: 2000
             });
@@ -336,12 +339,12 @@ App({
                 }
 
                 that.adjustCheckInterval();
-                wx.showToast({ title: '座位已释放', icon: 'success' });
+                wx.showToast({ title: appText.seatReleased, icon: 'success' });
               },
               fail: function (backupErr) {
                 console.error('[AutoRelease] ❌ 备用方案也失败:', backupErr);
                 that.globalData.isReleasing = false;
-                wx.showToast({ title: '释放异常，请刷新', icon: 'none' });
+                wx.showToast({ title: appText.releaseError, icon: 'none' });
               }
             });
           }

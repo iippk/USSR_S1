@@ -1,4 +1,5 @@
 // seat.js - 座位管理页面
+var i18n = require('../../i18n/i18n.js')
 var zoneConfig = {
   immersive: {
     key: 'immersive',
@@ -88,6 +89,8 @@ function getZoneBySeatNumber(seatNumber) {
 
 Page({
   data: {
+    i18n: {},
+    currentLang: 'zh-CN',
     seats: [],
     seatsByRow: {},
     rowNumbers: [],
@@ -124,9 +127,10 @@ Page({
     currentZone: null
   },
 
-  onLoad: function () { this.initData(); },
+  onLoad: function () { this.applyLanguage(); this.initData(); },
 
   onShow: function () {
+    this.applyLanguage();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 1 });
     }
@@ -137,6 +141,62 @@ Page({
   onHide: function () { this.stopSeatsWatch(); },
 
   onUnload: function () { this.stopSeatsWatch(); },
+
+  applyLanguage: function() {
+    var lang = i18n.getCurrentLang()
+    var text = i18n.getPageText('seat')
+    this.setData({ i18n: text, currentLang: lang })
+    this.updateZoneRoomsI18n()
+    if (text.immersiveZone) {
+      zoneConfig.immersive.name = text.immersiveZone
+      zoneConfig.immersive.fullName = text.immersiveFull
+      zoneConfig.immersive.tagline = text.immersiveTagline
+      zoneConfig.sunshine.name = text.sunshineZone
+      zoneConfig.sunshine.fullName = text.sunshineFull
+      zoneConfig.sunshine.tagline = text.sunshineTagline
+      zoneConfig.vip.name = text.vipZone
+      zoneConfig.vip.fullName = text.vipFull
+      zoneConfig.vip.tagline = text.vipTagline
+      if (text.feature1Title) {
+        zoneConfig.immersive.features[0].title = text.feature1Title
+        zoneConfig.immersive.features[0].desc = text.feature1Desc
+        zoneConfig.immersive.features[1].title = text.feature2Title
+        zoneConfig.immersive.features[1].desc = text.feature2Desc
+        zoneConfig.immersive.features[2].title = text.feature3Title
+        zoneConfig.immersive.features[2].desc = text.feature3Desc
+        zoneConfig.sunshine.features[0].title = text.feature4Title
+        zoneConfig.sunshine.features[0].desc = text.feature4Desc
+        zoneConfig.sunshine.features[1].title = text.feature2Title
+        zoneConfig.sunshine.features[1].desc = text.feature2Desc
+        zoneConfig.sunshine.features[2].title = text.feature5Title
+        zoneConfig.sunshine.features[2].desc = text.feature5Desc
+        zoneConfig.vip.features[0].title = text.feature4Title
+        zoneConfig.vip.features[0].desc = text.feature4Desc
+        zoneConfig.vip.features[1].title = text.feature6Title
+        zoneConfig.vip.features[1].desc = text.feature6Desc
+        zoneConfig.vip.features[2].title = text.feature2Title
+        zoneConfig.vip.features[2].desc = text.feature2Desc
+        zoneConfig.vip.features[3].title = text.feature7Title
+        zoneConfig.vip.features[3].desc = text.feature7Desc
+      }
+    }
+  },
+
+  updateZoneRoomsI18n: function() {
+    var text = this.data.i18n
+    if (!text || !text.immersiveZone) return
+    var zoneRooms = this.data.zoneRooms
+    zoneRooms[0].name = text.immersiveZone
+    zoneRooms[0].fullName = text.immersiveFull
+    zoneRooms[0].tagline = text.immersiveTagline
+    zoneRooms[1].name = text.sunshineZone
+    zoneRooms[1].fullName = text.sunshineFull
+    zoneRooms[1].tagline = text.sunshineTagline
+    zoneRooms[2].name = text.vipZone
+    zoneRooms[2].fullName = text.vipFull
+    zoneRooms[2].tagline = text.vipTagline
+    this.setData({ zoneRooms: zoneRooms })
+  },
 
   initData: function () {
     this.checkLoginStatus();
@@ -162,6 +222,7 @@ Page({
         { key: 'vip', name: 'VIP区', fullName: 'VIP区独立包间', tagline: '顶配私密，高端尊享', pricePerHour: zoneConfig.vip.pricePerHour, icon: '👑', color: '#7C3AED', bgColor: '#F5F3FF', borderColor: '#C4B5FD', seatRange: '6-1 ~ 6-8', seatCount: 8 }
       ]
     });
+    this.updateZoneRoomsI18n();
   },
 
   manualRefresh: function () {
@@ -169,7 +230,7 @@ Page({
     that.setData({ isLoading: true });
     that.getSeats();
     that.checkActiveOrder();
-    wx.showToast({ title: '已刷新', icon: 'success', duration: 1000 });
+    wx.showToast({ title: that.data.i18n.refreshed || '已刷新', icon: 'success', duration: 1000 });
   },
 
   showRoomDetailModal: function (e) {
@@ -334,7 +395,7 @@ Page({
       fail: function (err) {
         console.error('获取座位失败:', err);
         that.setData({ isLoading: false });
-        wx.showToast({ title: '加载座位失败', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.loadSeatsFailed || '加载座位失败', icon: 'none' });
       }
     });
   },
@@ -457,8 +518,8 @@ Page({
     var app = getApp();
     if (!app.globalData.userInfo) {
       wx.showModal({
-        title: '提示',
-        content: '请先登录后预订座位',
+        title: that.data.i18n.tip || '提示',
+        content: that.data.i18n.pleaseLoginFirst || '请先登录后预订座位',
         success: function (res) {
           if (res.confirm) { wx.switchTab({ url: '/pages/mine/mine' }); }
         }
@@ -469,10 +530,10 @@ Page({
     if (that.data.hasActiveOrder) {
       var info = that.data.activeOrderInfo;
       wx.showModal({
-        title: '您已有进行中的订单',
-        content: '座位 ' + info.seatNumber + '，到期时间 ' + info.formattedExpireAt + '\n\n如需延长学习时间，请前往"学时"页面进行续费操作',
-        confirmText: '去续费',
-        cancelText: '知道了',
+        title: that.data.i18n.hasActiveOrder || '您已有进行中的订单',
+        content: (that.data.i18n.activeOrderContent || '座位 {seat}，到期时间 {expire}\n\n如需延长学习时间，请前往"学时"页面进行续费操作').replace('{seat}', info.seatNumber).replace('{expire}', info.formattedExpireAt),
+        confirmText: that.data.i18n.goRenew || '去续费',
+        cancelText: that.data.i18n.know || '知道了',
         success: function (res) {
           if (res.confirm) { wx.switchTab({ url: '/pages/study/study' }); }
         }
@@ -481,7 +542,7 @@ Page({
     }
 
     if (seat.status !== '空闲') {
-      wx.showToast({ title: seat.status === '已订' ? '已订座位请到学时界面操作' : '该座位不可预订', icon: 'none' });
+      wx.showToast({ title: seat.status === '已订' ? (that.data.i18n.reservedSeatTip || '已订座位请到学时界面操作') : (that.data.i18n.seatNotAvailable || '该座位不可预订'), icon: 'none' });
       return;
     }
 
@@ -515,7 +576,7 @@ Page({
       planType: 'hour',
       quantityIndex: 0,
       quantityOptions: [],
-      planUnitText: '小时',
+      planUnitText: this.data.i18n.hour || '小时',
       unitPrice: 3,
       totalPrice: 3,
       expireDate: '',
@@ -574,9 +635,9 @@ Page({
     var type = e.currentTarget.dataset.type;
     var zone = this.data.currentZone || zoneConfig.immersive;
     var map = {
-      hour: { unitPrice: zone.pricePerHour, max: 24, unitText: '小时' },
-      day: { unitPrice: zone.pricePerDay, max: 30, unitText: '天' },
-      week: { unitPrice: zone.pricePerWeek, max: 4, unitText: '周' }
+      hour: { unitPrice: zone.pricePerHour, max: 24, unitText: this.data.i18n.hour || '小时' },
+      day: { unitPrice: zone.pricePerDay, max: 30, unitText: this.data.i18n.day || '天' },
+      week: { unitPrice: zone.pricePerWeek, max: 4, unitText: this.data.i18n.week || '周' }
     };
     var cfg = map[type] || map.hour;
     var options = [];
@@ -620,10 +681,10 @@ Page({
     var settings = app.globalData.systemSettings;
     if (settings && settings.maintenanceMode) {
       wx.showModal({
-        title: '🔧 系统维护中',
-        content: settings.maintenanceMessage || '系统维护中，请稍后再试',
+        title: that.data.i18n.systemMaintenance || '🔧 系统维护中',
+        content: settings.maintenanceMessage || that.data.i18n.systemMaintenanceMsg || '系统维护中，请稍后再试',
         showCancel: false,
-        confirmText: '我知道了'
+        confirmText: that.data.i18n.iKnow || '我知道了'
       });
       return;
     }
@@ -654,12 +715,12 @@ Page({
         data: { action: 'applyCoupon', couponId: selectedCoupon._id, orderAmount: this.data.totalPrice },
         success: function (couponRes) {
           if (!couponRes.result || !couponRes.result.success) {
-            wx.showToast({ title: (couponRes.result && couponRes.result.error) || '优惠券使用失败', icon: 'none' });
+            wx.showToast({ title: (couponRes.result && couponRes.result.error) || that.data.i18n.couponApplyFailed || '优惠券使用失败', icon: 'none' });
             return;
           }
           that.doCreateOrder(quantity, planType, finalPrice);
         },
-        fail: function () { wx.showToast({ title: '优惠券处理失败', icon: 'none' }); }
+        fail: function () { wx.showToast({ title: that.data.i18n.couponProcessFailed || '优惠券处理失败', icon: 'none' }); }
       });
       return;
     }
@@ -690,7 +751,7 @@ Page({
 
     var zone = this.data.currentZone || zoneConfig.immersive;
 
-    wx.showLoading({ title: '下单中...' });
+    wx.showLoading({ title: that.data.i18n.orderCreating || '下单中...' });
     wx.cloud.callFunction({
       name: 'reserveSeat',
       data: {
@@ -705,22 +766,22 @@ Page({
       success: function (res) {
         wx.hideLoading();
         if (!res.result || !res.result.success) {
-          wx.showToast({ title: (res.result && res.result.error) || '下单失败', icon: 'none' });
+          wx.showToast({ title: (res.result && res.result.error) || that.data.i18n.orderFailed || '下单失败', icon: 'none' });
           return;
         }
 
         var orderId = res.result.data && res.result.data.orderId;
         if (!orderId) {
-          wx.showToast({ title: '下单失败', icon: 'none' });
+          wx.showToast({ title: that.data.i18n.orderFailed || '下单失败', icon: 'none' });
           return;
         }
 
         if (config && config.enableMockPay) {
           wx.showModal({
-            title: '确认支付',
-            content: '应付金额 ¥' + displayPrice,
-            confirmText: '立即支付',
-            cancelText: '取消',
+            title: that.data.i18n.confirmPay || '确认支付',
+            content: (that.data.i18n.amountDueLabel || '应付金额') + ' ¥' + displayPrice,
+            confirmText: that.data.i18n.payNow || '立即支付',
+            cancelText: that.data.i18n.cancel || '取消',
             success: function (r) {
               if (r.confirm) {
                 that.confirmPayment(orderId);
@@ -737,7 +798,7 @@ Page({
 
         var payment = res.result.data && res.result.data.payment;
         if (!payment) {
-          wx.showToast({ title: '缺少支付参数', icon: 'none' });
+          wx.showToast({ title: that.data.i18n.missingPayParams || '缺少支付参数', icon: 'none' });
           return;
         }
 
@@ -759,31 +820,31 @@ Page({
       fail: function (err) {
         wx.hideLoading();
         console.error('下单失败:', err);
-        wx.showToast({ title: '下单失败，请重试', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.orderFailedRetry || '下单失败，请重试', icon: 'none' });
       }
     });
   },
 
   confirmPayment: function (orderId) {
     var that = this;
-    wx.showLoading({ title: '确认中...' });
+    wx.showLoading({ title: that.data.i18n.confirming || '确认中...' });
     wx.cloud.callFunction({
       name: 'reserveSeat',
       data: { action: 'confirmPayment', orderId: orderId },
       success: function (res) {
         wx.hideLoading();
         if (res.result && res.result.success) {
-          wx.showToast({ title: '支付成功', icon: 'success' });
+          wx.showToast({ title: that.data.i18n.paySuccess || '支付成功', icon: 'success' });
           that.closeReserveModal();
           that.getSeats();
         } else {
-          wx.showToast({ title: (res.result && res.result.error) || '确认失败', icon: 'none' });
+          wx.showToast({ title: (res.result && res.result.error) || that.data.i18n.confirmFailed || '确认失败', icon: 'none' });
         }
       },
       fail: function (err) {
         wx.hideLoading();
         console.error('确认失败:', err);
-        wx.showToast({ title: '确认失败', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.confirmFailed || '确认失败', icon: 'none' });
       }
     });
   },
@@ -820,7 +881,7 @@ Page({
 
   openCouponPicker: function () {
     if (this.data.availableCoupons.length === 0) {
-      wx.showToast({ title: '暂无可用优惠券', icon: 'none' });
+      wx.showToast({ title: this.data.i18n.noAvailableCoupon || '暂无可用优惠券', icon: 'none' });
       return;
     }
     this.setData({ showCouponPicker: true });
@@ -842,7 +903,7 @@ Page({
     }
     if (!coupon) return;
     if (this.data.totalPrice < (coupon.minAmount || 0)) {
-      wx.showToast({ title: '需满' + (coupon.minAmount || 0) + '元可用', icon: 'none' });
+      wx.showToast({ title: (this.data.i18n.minAmountRequired || '需满') + (coupon.minAmount || 0) + (this.data.i18n.yuanAvailable || '元可用'), icon: 'none' });
       return;
     }
     this.setData({ selectedCouponId: couponId, selectedCoupon: coupon });
@@ -869,7 +930,7 @@ Page({
     }
     if (!coupon) return;
     if (this.data.totalPrice < (coupon.minAmount || 0)) {
-      wx.showToast({ title: '需满' + coupon.minAmount + '元可用', icon: 'none' });
+      wx.showToast({ title: (this.data.i18n.minAmountRequired || '需满') + coupon.minAmount + (this.data.i18n.yuanAvailable || '元可用'), icon: 'none' });
       return;
     }
     this.setData({ selectedCouponId: couponId, selectedCoupon: coupon, showCouponList: false });

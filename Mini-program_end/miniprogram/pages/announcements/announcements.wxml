@@ -3,8 +3,8 @@
   <scroll-view class="ann-main" scroll-y enhanced show-scrollbar="{{false}}" scroll-top="{{scrollTop}}">
     <view class="ann-article" wx:if="{{currentAnnouncement}}">
       <view class="aa-badge-row">
-        <view class="aa-pin" wx:if="{{currentAnnouncement.isPinned}}">📌 置顶</view>
-        <view class="aa-type-tag">{{currentAnnouncement.typeName || '通知'}}</view>
+        <view class="aa-pin" wx:if="{{currentAnnouncement.isPinned}}">{{i18n.pinned}}</view>
+        <view class="aa-type-tag">{{currentAnnouncement.typeName || i18n.typeNotice}}</view>
       </view>
       <text class="aa-title">{{currentAnnouncement.title}}</text>
       <view class="aa-meta">
@@ -17,8 +17,8 @@
     <!-- 更多公告 -->
     <view class="ann-others" wx:if="{{otherAnnouncements.length > 0}}">
       <view class="ao-header">
-        <text class="ao-title">📋 更多公告</text>
-        <text class="ao-count">{{otherAnnouncements.length}}条</text>
+        <text class="ao-title">{{i18n.moreAnnouncements}}</text>
+        <text class="ao-count">{{otherAnnouncements.length}}{{i18n.countUnit}}</text>
       </view>
       <view class="ao-list">
         <view
@@ -41,7 +41,7 @@
     <!-- 空状态 -->
     <view class="ann-empty" wx:if="{{!currentAnnouncement && announcements.length === 0}}">
       <text class="ae-icon">📢</text>
-      <text class="ae-text">暂无系统公告</text>
+      <text class="ae-text">{{i18n.noAnnouncements}}</text>
     </view>
   </scroll-view>
 </view>

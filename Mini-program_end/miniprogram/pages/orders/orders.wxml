@@ -1,21 +1,21 @@
 <!--orders.wxml - 订单管理 · 淘宝式卡片布局 · Ocean Blue Design-->
 <view class="container">
   <view class="oc-head">
-    <text class="section-title-inline">📋 我的订单</text>
-    <view class="refresh-chip" bindtap="loadOrders"><text class="refresh-icon">↻</text><text>刷新</text></view>
+    <text class="section-title-inline">{{i18n.title}}</text>
+    <view class="refresh-chip" bindtap="loadOrders"><text class="refresh-icon">↻</text><text>{{i18n.refresh}}</text></view>
   </view>
 
   <view class="loading-box" wx:if="{{isLoading}}">
-    <view class="loading-spinner"></view><text>加载中...</text>
+    <view class="loading-spinner"></view><text>{{i18n.loading}}</text>
   </view>
 
   <view wx:else>
     <!-- 空状态 -->
     <view wx:if="{{orders.length === 0}}" class="empty-orders">
       <text class="empty-icon">📋</text>
-      <text class="empty-text">暂无订单记录</text>
-      <text class="empty-sub">快去预约座位开始学习吧！</text>
-      <button class="btn-go-seat" bindtap="goToSeat">去预约座位</button>
+      <text class="empty-text">{{i18n.noOrders}}</text>
+      <text class="empty-sub">{{i18n.noOrdersTip}}</text>
+      <button class="btn-go-seat" bindtap="goToSeat">{{i18n.goReserve}}</button>
     </view>
 
     <!-- 订单列表 - 淘宝式卡片 -->
@@ -30,7 +30,7 @@
           <view class="oc-topbar">
             <view class="oc-shop">
               <text class="shop-icon">🪑</text>
-              <text class="shop-name">上岸自习室</text>
+              <text class="shop-name">{{i18n.shopName}}</text>
               <text class="shop-arrow">›</text>
             </view>
             <text class="oc-status {{getStatusClass(item.status)}}">{{item.status}}</text>
@@ -45,13 +45,13 @@
 
             <!-- 右侧详情 -->
             <view class="oc-detail">
-              <text class="oc-pname">自习室座位预约</text>
-              <text class="oc-specs">{{item.planType}} × {{item.quantity}}{{item.unitText || (item.planType === 'hour' ? '小时' : item.planType === 'day' ? '天' : '周')}}</text>
+              <text class="oc-pname">{{i18n.productName}}</text>
+              <text class="oc-specs">{{item.planType}} × {{item.quantity}}{{item.unitText || (item.planType === 'hour' ? i18n.hour : item.planType === 'day' ? i18n.day : i18n.week)}}</text>
             </view>
 
             <!-- 右侧金额区 -->
             <view class="oc-price-col">
-              <text class="oc-price-label">实付</text>
+              <text class="oc-price-label">{{i18n.actualPay}}</text>
               <view class="oc-price-row">
                 <text class="oc-currency">¥</text>
                 <text class="oc-price-num">{{item.finalPrice || item.totalPrice}}</text>
@@ -64,24 +64,24 @@
           <view class="oc-info-row">
             <view class="info-cell">
               <text class="info-dot seat"></text>
-              <text class="info-lbl">座位号</text>
+              <text class="info-lbl">{{i18n.seatNumber}}</text>
               <text class="info-val highlight">{{item.seatNumber}}</text>
             </view>
             <view class="info-cell">
               <text class="info-dot time"></text>
-              <text class="info-lbl">下单</text>
+              <text class="info-lbl">{{i18n.orderTime}}</text>
               <text class="info-val">{{item.createdAtText || item.formattedDate}}</text>
             </view>
           </view>
           <view class="oc-info-row">
             <view class="info-cell">
               <text class="info-dot expire"></text>
-              <text class="info-lbl">到期</text>
-              <text class="info-val warn">{{item.expireAtText || item.formattedExpireAt || '未设置'}}</text>
+              <text class="info-lbl">{{i18n.expireTime}}</text>
+              <text class="info-val warn">{{item.expireAtText || item.formattedExpireAt || i18n.notSet}}</text>
             </view>
             <view class="info-cell">
               <text class="info-dot dur"></text>
-              <text class="info-lbl">学时</text>
+              <text class="info-lbl">{{i18n.studyTime}}</text>
               <text class="info-val">{{item.formattedDuration}}</text>
             </view>     
           </view>
@@ -89,22 +89,22 @@
           <!-- 优惠券使用提示 -->
           <view class="oc-coupon-tag" wx:if="{{item.couponUsed && item.couponDiscount > 0}}">
             <text class="coupon-tag-icon">🎫</text>
-            <text>已使用优惠券优惠 ¥{{item.couponDiscount}}</text>
+            <text>{{i18n.couponApplied}}{{item.couponDiscount}}</text>
           </view>
 
           <!-- ====== 底栏：操作按钮 ====== -->
           <view class="oc-bottom">
-            <text class="oc-total-lbl">共1件商品</text>
+            <text class="oc-total-lbl">{{i18n.totalItems}}</text>
             <view class="oc-btns">
               <block wx:if="{{item.status === '进行中'}}">
-                <button class="oc-btn oc-btn-outline" bindtap="cancelOrder" data-id="{{item._id}}">取消订单</button>
-                <button class="oc-btn oc-btn-primary" bindtap="goToStudyForExtend" data-id="{{item._id}}" data-seat-id="{{item.seatId}}">续费延时</button>
+                <button class="oc-btn oc-btn-outline" bindtap="cancelOrder" data-id="{{item._id}}">{{i18n.cancelOrder}}</button>
+                <button class="oc-btn oc-btn-primary" bindtap="goToStudyForExtend" data-id="{{item._id}}" data-seat-id="{{item.seatId}}">{{i18n.extendTime}}</button>
               </block>
               <block wx:elif="{{item.status === '已完成'}}">
-                <button class="oc-btn oc-btn-outline" catchtap="">再来一单</button>
+                <button class="oc-btn oc-btn-outline" catchtap="">{{i18n.reorder}}</button>
               </block>
               <block wx:elif="{{item.status === '已取消'}}">
-                <button class="oc-btn oc-btn-outline" catchtap="">删除记录</button>
+                <button class="oc-btn oc-btn-outline" catchtap="">{{i18n.deleteRecord}}</button>
               </block>
             </view>
           </view>

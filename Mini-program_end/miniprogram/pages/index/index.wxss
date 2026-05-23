@@ -183,6 +183,10 @@
 
 .uc-actions {
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
 }
 
 .btn-logout-mini {
@@ -792,4 +796,77 @@ refresh-chip text {
   font-size: 22rpx;
   color: var(--blue-500);
   font-weight: 500;
+}
+
+.lang-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 10rpx 18rpx;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-full);
+  border: 1rpx solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10rpx);
+  flex-shrink: 0;
+}
+
+.lang-switch-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.lsb-icon {
+  font-size: 22rpx;
+}
+
+.lsb-text {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: white;
+}
+
+.lang-modal {
+  max-width: 520rpx;
+}
+
+.lang-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.lang-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 2rpx solid var(--gray-200);
+  transition: all 0.2s ease;
+}
+
+.lang-opt:active {
+  transform: scale(0.96);
+}
+
+.lang-opt.lang-sel {
+  background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+  border-color: var(--blue-400);
+  box-shadow: 0 2rpx 10rpx rgba(37, 99, 235, 0.15);
+}
+
+.lo-label {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: 4rpx;
+}
+
+.lang-opt.lang-sel .lo-label {
+  color: var(--blue-600);
+}
+
+.lo-desc {
+  font-size: 22rpx;
+  color: var(--gray-400);
 }

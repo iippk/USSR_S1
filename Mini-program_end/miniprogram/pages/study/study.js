@@ -1,6 +1,9 @@
 // study.js - 学时统计页面 · Session模型 v2.1 (修复版)
+var i18n = require('../../i18n/i18n.js')
 Page({
   data: {
+    i18n: {},
+    currentLang: 'zh-CN',
     currentStudyTime: '00:00:00',
     isStudying: false,
     sessionActive: false,
@@ -50,7 +53,14 @@ Page({
     }
   },
 
+  applyLanguage: function() {
+    var lang = i18n.getCurrentLang()
+    var text = i18n.getPageText('study')
+    this.setData({ i18n: text, currentLang: lang })
+  },
+
   onLoad: function() {
+    this.applyLanguage();
     this.checkLoginStatus();
     this.syncZonePrices();
   },
@@ -64,6 +74,7 @@ Page({
   },
 
   onShow: function() {
+    this.applyLanguage();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 2 });
     }
@@ -88,8 +99,8 @@ Page({
     var app = getApp();
     if (!app.globalData.userInfo) {
       wx.showModal({
-        title: '提示',
-        content: '请先登录后使用学时功能',
+        title: this.data.i18n.tip,
+        content: this.data.i18n.loginRequired,
         success: function(res) {
           if (res.confirm) {
             wx.switchTab({ url: '/pages/mine/mine' });
@@ -326,7 +337,7 @@ Page({
 
     that.stopExpireCheckTimer();
 
-    wx.showToast({ title: '学习时间已到期', icon: 'none', duration: 2000 });
+    wx.showToast({ title: that.data.i18n.studyTimeExpired, icon: 'none', duration: 2000 });
 
     setTimeout(function() {
       that.refreshData();
@@ -403,16 +414,16 @@ Page({
   startSession: function() {
     var app = getApp();
     var currentSeat = app.globalData.currentSeat;
-    if (!currentSeat) { wx.showToast({ title: '请先预订座位', icon: 'none' }); return; }
-    if (currentSeat.status !== '使用中') { wx.showToast({ title: '座位状态异常', icon: 'none' }); return; }
+    if (!currentSeat) { wx.showToast({ title: this.data.i18n.pleaseReserveSeat, icon: 'none' }); return; }
+    if (currentSeat.status !== '使用中') { wx.showToast({ title: this.data.i18n.seatStatusError, icon: 'none' }); return; }
     var that = this;
     wx.showModal({
-      title: '开始本次学习',
-      content: '确认开始使用座位 ' + currentSeat.seatNumber + ' 吗？开始后将计时。',
-      confirmText: '确认开始',
+      title: that.data.i18n.startStudy,
+      content: that.data.i18n.confirmStartPrefix + currentSeat.seatNumber + that.data.i18n.confirmStartSuffix,
+      confirmText: that.data.i18n.confirmStart,
       success: function(res) {
         if (!res.confirm) return;
-        wx.showLoading({ title: '处理中...' });
+        wx.showLoading({ title: that.data.i18n.processing });
         wx.cloud.callFunction({
           name: 'reserveSeat',
           data: { seatId: currentSeat._id, action: 'start' },
@@ -428,10 +439,10 @@ Page({
                 sessionActive: true, isStudying: true, currentSeat: updatedSeat,
                 currentStudyTime: '00:00:01'
               });
-              wx.showToast({ title: '已开始学习', icon: 'success' });
-            } else { wx.showToast({ title: res.result.error || '操作失败', icon: 'none' }); }
+              wx.showToast({ title: that.data.i18n.studyStarted, icon: 'success' });
+            } else { wx.showToast({ title: res.result.error || that.data.i18n.operationFailed, icon: 'none' }); }
           },
-          fail: function(err) { wx.hideLoading(); wx.showToast({ title: '操作失败', icon: 'none' }); }
+          fail: function(err) { wx.hideLoading(); wx.showToast({ title: that.data.i18n.operationFailed, icon: 'none' }); }
         });
       }
     });
@@ -442,31 +453,31 @@ Page({
     var that = this;
     var app = getApp();
     var currentSeat = app.globalData.currentSeat;
-    if (!currentSeat) { wx.showToast({ title: '当前没有预订的座位', icon: 'none' }); return; }
-    if (!that.data.sessionActive) { wx.showToast({ title: '当前没有进行中的学习', icon: 'none' }); return; }
+    if (!currentSeat) { wx.showToast({ title: this.data.i18n.noReservedSeat, icon: 'none' }); return; }
+    if (!that.data.sessionActive) { wx.showToast({ title: this.data.i18n.noActiveStudy, icon: 'none' }); return; }
     wx.showModal({
-      title: '结束本次学习',
-      content: '确定要结束本次学习吗？结束后可继续保留座位或退订。',
-      confirmText: '确认结束',
+      title: that.data.i18n.endStudy,
+      content: that.data.i18n.confirmEndContent,
+      confirmText: that.data.i18n.confirmEnd,
       success: function(res) {
         if (!res.confirm) return;
-        wx.showLoading({ title: '处理中...' });
+        wx.showLoading({ title: that.data.i18n.processing });
         wx.cloud.callFunction({
           name: 'reserveSeat',
           data: { seatId: currentSeat._id, action: 'endSession' },
           success: function(res) {
             wx.hideLoading();
             if (res.result.success) {
-              wx.showToast({ title: '学习已结束', icon: 'success' });
+              wx.showToast({ title: that.data.i18n.studyEnded, icon: 'success' });
               app.stopStudyTimer(); app.globalData.studyDuration = 0;
               that.stopUpdateTimer();
               that.setData({ sessionActive: false, currentStudyTime: '00:00:00' });
               that.getStudyRecords(); that.getUserStats();
               that.refreshData();
-            } else { wx.showToast({ title: res.result.error || '操作失败', icon: 'none' }); }
+            } else { wx.showToast({ title: res.result.error || that.data.i18n.operationFailed, icon: 'none' }); }
           },
           fail: function(err) {
-            wx.hideLoading(); console.error('操作失败:', err); wx.showToast({ title: '操作失败', icon: 'none' });
+            wx.hideLoading(); console.error('操作失败:', err); wx.showToast({ title: that.data.i18n.operationFailed, icon: 'none' });
           }
         });
       }
@@ -478,31 +489,31 @@ Page({
     var that = this;
     var app = getApp();
     var currentSeat = app.globalData.currentSeat;
-    if (!currentSeat) { wx.showToast({ title: '当前没有预订的座位', icon: 'none' }); return; }
+    if (!currentSeat) { wx.showToast({ title: this.data.i18n.noReservedSeat, icon: 'none' }); return; }
     wx.showModal({
-      title: '提前退订座位',
-      content: '确定要提前退订座位 ' + currentSeat.seatNumber + ' 吗？\n\n退订后请前往前台联系管理员退款。',
-      confirmText: '确认退订',
+      title: that.data.i18n.earlyCancel,
+      content: that.data.i18n.confirmCancelPrefix + currentSeat.seatNumber + that.data.i18n.confirmCancelSuffix,
+      confirmText: that.data.i18n.confirmCancel,
       confirmColor: '#EF4444',
       success: function(res) {
         if (!res.confirm) return;
-        wx.showLoading({ title: '退订中...' });
+        wx.showLoading({ title: that.data.i18n.cancelling });
         wx.cloud.callFunction({
           name: 'reserveSeat', data: { seatId: currentSeat._id, action: 'unlock' },
           success: function(res) {
             wx.hideLoading();
             if (res.result.success) {
-              wx.showToast({ title: '已退订，请联系前台退款', icon: 'success', duration: 2500 });
+              wx.showToast({ title: that.data.i18n.cancelledContactRefund, icon: 'success', duration: 2500 });
               if (that.data.sessionActive) { app.stopStudyTimer(); }
               app.globalData.currentSeat = null; app.globalData.studyDuration = 0;
               that.setData({ sessionActive: false, isStudying: false, currentSeat: null, currentStudyTime: '00:00:00', remainingStudyTime: '00:00:00', autoReleaseTime: '', hwDoorOn: false, hwLightOn: false, hwACOn: false });
               that.stopUpdateTimer(); that.stopExpireCheckTimer(); that.stopCurrentSeatWatch();
               that.getStudyRecords(); that.getUserStats();
-            } else { wx.showToast({ title: res.result.error || '退订失败', icon: 'none' }); }
+            } else { wx.showToast({ title: res.result.error || that.data.i18n.cancelFailed, icon: 'none' }); }
           },
           fail: function(err) {
             wx.hideLoading(); console.error('退订失败:', err);
-            wx.showToast({ title: '退订失败，请重试', icon: 'none' });
+            wx.showToast({ title: that.data.i18n.cancelFailedRetry, icon: 'none' });
           }
         });
       }
@@ -543,14 +554,14 @@ Page({
     var that = this;
     var app = getApp();
     var currentSeat = app.globalData.currentSeat;
-    if (!currentSeat) { wx.showToast({ title: '当前没有使用座位', icon: 'none' }); return; }
+    if (!currentSeat) { wx.showToast({ title: that.data.i18n.noSeatInUse, icon: 'none' }); return; }
     this.setData({ hwDoorOn: checked });
     wx.cloud.callFunction({
       name: 'reserveSeat', data: { seatId: currentSeat._id, action: 'hardware', device: 'door', status: checked },
       success: function(res) {
         if (!res.result.success) {
           that.setData({ hwDoorOn: !checked });
-          wx.showToast({ title: res.result.error || '操作失败', icon: 'none' });
+          wx.showToast({ title: res.result.error || that.data.i18n.operationFailed, icon: 'none' });
         } else {
           var updatedSeat = res.result.data;
           if (updatedSeat) { app.globalData.currentSeat = updatedSeat; that.setData({ currentSeat: updatedSeat }); }
@@ -559,7 +570,7 @@ Page({
       fail: function(err) {
         console.error('门锁操作失败:', err);
         that.setData({ hwDoorOn: !checked });
-        wx.showToast({ title: '操作失败', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.operationFailed, icon: 'none' });
       }
     });
   },
@@ -570,14 +581,14 @@ Page({
     var that = this;
     var app = getApp();
     var currentSeat = app.globalData.currentSeat;
-    if (!currentSeat) { wx.showToast({ title: '当前没有使用座位', icon: 'none' }); return; }
+    if (!currentSeat) { wx.showToast({ title: that.data.i18n.noSeatInUse, icon: 'none' }); return; }
     this.setData({ hwLightOn: checked });
     wx.cloud.callFunction({
       name: 'reserveSeat', data: { seatId: currentSeat._id, action: 'hardware', device: 'light', status: checked },
       success: function(res) {
         if (!res.result.success) {
           that.setData({ hwLightOn: !checked });
-          wx.showToast({ title: res.result.error || '操作失败', icon: 'none' });
+          wx.showToast({ title: res.result.error || that.data.i18n.operationFailed, icon: 'none' });
         } else {
           var updatedSeat = res.result.data;
           if (updatedSeat) { app.globalData.currentSeat = updatedSeat; that.setData({ currentSeat: updatedSeat }); }
@@ -586,7 +597,7 @@ Page({
       fail: function(err) {
         console.error('灯光操作失败:', err);
         that.setData({ hwLightOn: !checked });
-        wx.showToast({ title: '操作失败', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.operationFailed, icon: 'none' });
       }
     });
   },
@@ -597,14 +608,14 @@ Page({
     var that = this;
     var app = getApp();
     var currentSeat = app.globalData.currentSeat;
-    if (!currentSeat) { wx.showToast({ title: '当前没有使用座位', icon: 'none' }); return; }
+    if (!currentSeat) { wx.showToast({ title: that.data.i18n.noSeatInUse, icon: 'none' }); return; }
     this.setData({ hwACOn: checked });
     wx.cloud.callFunction({
       name: 'reserveSeat', data: { seatId: currentSeat._id, action: 'hardware', device: 'airConditioner', status: checked },
       success: function(res) {
         if (!res.result.success) {
           that.setData({ hwACOn: !checked });
-          wx.showToast({ title: res.result.error || '操作失败', icon: 'none' });
+          wx.showToast({ title: res.result.error || that.data.i18n.operationFailed, icon: 'none' });
         } else {
           var updatedSeat = res.result.data;
           if (updatedSeat) { app.globalData.currentSeat = updatedSeat; that.setData({ currentSeat: updatedSeat }); }
@@ -613,7 +624,7 @@ Page({
       fail: function(err) {
         console.error('空调操作失败:', err);
         that.setData({ hwACOn: !checked });
-        wx.showToast({ title: '操作失败', icon: 'none' });
+        wx.showToast({ title: that.data.i18n.operationFailed, icon: 'none' });
       }
     });
   },
@@ -622,9 +633,9 @@ Page({
     var that = this;
     var app = getApp();
     var currentSeat = app.globalData.currentSeat;
-    if (!currentSeat || !currentSeat.orderId) { wx.showToast({ title: '没有可续费的订单', icon: 'none' }); return; }
+    if (!currentSeat || !currentSeat.orderId) { wx.showToast({ title: this.data.i18n.noOrderToExtend, icon: 'none' }); return; }
     this.getOrderInfo(currentSeat.orderId, function(order) {
-      if (!order) { wx.showToast({ title: '订单信息获取失败', icon: 'none' }); return; }
+      if (!order) { wx.showToast({ title: that.data.i18n.orderInfoFailed, icon: 'none' }); return; }
       that.setData({ currentOrderInfo: order, showExtendModal: true, extendSelectedCouponId: '', extendSelectedCoupon: null, extendFinalPrice: 3 });
       that.setExtPlanType({ currentTarget: { dataset: { type: 'hour' } } });
       that.fetchExtendCoupons();
@@ -694,7 +705,7 @@ Page({
     var quantity = this.data.extendQuantityOptions[this.data.extendQuantityIndex] || 1;
     var config = require('../../config');
     if (config && config.enableMockPay) {
-      wx.showModal({ title: '确认续费', content: '续费 ' + quantity + ' ' + this.data.extendUnitText + '，应付金额 ¥' + this.data.extendFinalPrice, confirmText: '立即支付', cancelText: '取消',
+      wx.showModal({ title: this.data.i18n.confirmExtendTitle, content: this.data.i18n.extendContentPrefix + quantity + ' ' + this.data.extendUnitText + this.data.i18n.extendContentSuffix + this.data.extendFinalPrice, confirmText: this.data.i18n.payNow, cancelText: this.data.i18n.cancel,
         success: function(r) { if (r.confirm) { this.doExtendPayment(orderId, planType, quantity); } }.bind(this)
       });
       return;
@@ -708,10 +719,10 @@ Page({
     if (selectedCoupon && selectedCoupon._id) {
       wx.cloud.callFunction({ name: 'couponManager', data: { action: 'applyCoupon', couponId: selectedCoupon._id, orderAmount: this.data.extendTotalPrice },
         success: function(couponRes) {
-          if (!couponRes.result || !couponRes.result.success) { wx.showToast({ title: (couponRes.result && couponRes.result.error) || '优惠券使用失败', icon: 'none' }); return; }
+          if (!couponRes.result || !couponRes.result.success) { wx.showToast({ title: (couponRes.result && couponRes.result.error) || that.data.i18n.couponApplyFailed, icon: 'none' }); return; }
           that.doExtendOrder(orderId, planType, quantity);
         },
-        fail: function() { wx.showToast({ title: '优惠券处理失败，请重试', icon: 'none' }); }
+        fail: function() { wx.showToast({ title: that.data.i18n.couponProcessFailed, icon: 'none' }); }
       });
       return;
     }
@@ -719,15 +730,15 @@ Page({
   },
 
   doExtendOrder: function(orderId, planType, quantity) {
-    wx.showLoading({ title: '续费中...' });
     var that = this;
+    wx.showLoading({ title: that.data.i18n.extending });
     wx.cloud.callFunction({ name: 'reserveSeat', data: { action: 'extendOrder', orderId: orderId, planType: planType, quantity: quantity },
       success: function(res) {
         wx.hideLoading();
-        if (res.result && res.result.success) { wx.showToast({ title: '续费成功', icon: 'success' }); that.closeExtendModal(); that.refreshData(); }
-        else { wx.showToast({ title: (res.result && res.result.error) || '续费失败', icon: 'none' }); }
+        if (res.result && res.result.success) { wx.showToast({ title: that.data.i18n.extendSuccess, icon: 'success' }); that.closeExtendModal(); that.refreshData(); }
+        else { wx.showToast({ title: (res.result && res.result.error) || that.data.i18n.extendFailed, icon: 'none' }); }
       },
-      fail: function(err) { wx.hideLoading(); console.error('续费失败:', err); wx.showToast({ title: '续费失败，请重试', icon: 'none' }); }
+      fail: function(err) { wx.hideLoading(); console.error('续费失败:', err); wx.showToast({ title: that.data.i18n.extendFailedRetry, icon: 'none' }); }
     });
   },
 
@@ -749,7 +760,7 @@ Page({
   },
 
   toggleExtendCouponList: function() {
-    if (this.data.extendAvailableCoupons.length === 0) { wx.showToast({ title: '暂无可用优惠券', icon: 'none' }); return; }
+    if (this.data.extendAvailableCoupons.length === 0) { wx.showToast({ title: this.data.i18n.noAvailableCoupon, icon: 'none' }); return; }
     this.setData({ showExtendCouponList: !this.data.showExtendCouponList });
   },
 
@@ -759,7 +770,7 @@ Page({
     var coupon = null;
     for (var i = 0; i < coupons.length; i++) { if (coupons[i]._id === couponId) { coupon = coupons[i]; break; } }
     if (!coupon) return;
-    if (this.data.extendTotalPrice < (coupon.minAmount || 0)) { wx.showToast({ title: '需满' + coupon.minAmount + '元可用', icon: 'none' }); return; }
+    if (this.data.extendTotalPrice < (coupon.minAmount || 0)) { wx.showToast({ title: this.data.i18n.minAmountPrefix + coupon.minAmount + this.data.i18n.minAmountSuffix, icon: 'none' }); return; }
     this.setData({ extendSelectedCouponId: couponId, extendSelectedCoupon: coupon });
     this.recalculateExtendFinalPrice();
   },

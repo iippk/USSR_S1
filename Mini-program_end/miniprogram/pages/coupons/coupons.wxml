@@ -2,22 +2,22 @@
 <view class="container">
   <!-- 头部卡片 - 淡蓝渐变 -->
   <view class="card-gradient-cyan coupon-header">
-    <text class="ch-title">🎫 我的优惠券</text>
-    <text class="ch-sub">使用优惠券可享受折扣优惠</text>
+    <text class="ch-title">{{i18n.title}}</text>
+    <text class="ch-sub">{{i18n.subtitle}}</text>
     <view class="ch-stats">
       <view class="ch-stat-item">
         <text class="cs-num">{{couponCount}}</text>
-        <text class="cs-lbl">可用</text>
+        <text class="cs-lbl">{{i18n.availableCount}}</text>
       </view>
       <view class="ch-divider"></view>
       <view class="ch-stat-item">
         <text class="cs-num">{{usedCount}}</text>
-        <text class="cs-lbl">已用</text>
+        <text class="cs-lbl">{{i18n.usedCount}}</text>
       </view>
       <view class="ch-divider"></view>
       <view class="ch-stat-item">
         <text class="cs-num">{{expiredCount}}</text>
-        <text class="cs-lbl">已过期</text>
+        <text class="cs-lbl">{{i18n.expiredCount}}</text>
       </view>
     </view>
   </view>
@@ -25,8 +25,8 @@
   <!-- 领取中心 -->
   <view class="pool-section" wx:if="{{poolCoupons.length > 0}}">
     <view class="pool-header">
-      <text class="pool-title">🎁 领取中心</text>
-      <text class="pool-sub">点击领取可用优惠券</text>
+      <text class="pool-title">{{i18n.claimCenter}}</text>
+      <text class="pool-sub">{{i18n.claimCenterSub}}</text>
     </view>
     <view class="pool-grid">
       <view
@@ -41,13 +41,13 @@
         </view>
         <view class="pool-mid">
           <text class="pool-name">{{item.type}}</text>
-          <text class="pool-scope">全场通用</text>
-          <text class="pool-date">有效期至 {{item.formattedExpireDate}}</text>
-          <text class="pool-stock">剩余 {{item.count}} 张</text>
+          <text class="pool-scope">{{i18n.universal}}</text>
+          <text class="pool-date">{{i18n.validUntil}} {{item.formattedExpireDate}}</text>
+          <text class="pool-stock">{{i18n.remaining}} {{item.count}} {{i18n.stockUnit}}</text>
         </view>
         <view class="pool-right">
           <view class="pool-claim-btn" data-type="{{item.type}}" bindtap="claimCoupon">
-            <text>领取</text>
+            <text>{{i18n.claim}}</text>
           </view>
         </view>
       </view>
@@ -56,22 +56,22 @@
 
   <!-- Tab 切换 -->
   <view class="tab-switch cp-tab">
-    <view class="tab-btn {{currentTab === 'available' ? 'tab-on' : ''}}" data-tab="available" bindtap="switchTab"><text>可用</text></view>
-    <view class="tab-btn {{currentTab === 'used' ? 'tab-on' : ''}}" data-tab="used" bindtap="switchTab"><text>已用</text></view>
-    <view class="tab-btn {{currentTab === 'expired' ? 'tab-on' : ''}}" data-tab="expired" bindtap="switchTab"><text>已过期</text></view>
+    <view class="tab-btn {{currentTab === 'available' ? 'tab-on' : ''}}" data-tab="available" bindtap="switchTab"><text>{{i18n.available}}</text></view>
+    <view class="tab-btn {{currentTab === 'used' ? 'tab-on' : ''}}" data-tab="used" bindtap="switchTab"><text>{{i18n.used}}</text></view>
+    <view class="tab-btn {{currentTab === 'expired' ? 'tab-on' : ''}}" data-tab="expired" bindtap="switchTab"><text>{{i18n.expired}}</text></view>
   </view>
 
   <!-- 优惠券列表 -->
   <view class="card-solid coupon-list-card">
     <view class="loading-box" wx:if="{{isLoading}}">
-      <view class="loading-spinner"></view><text>加载中...</text>
+      <view class="loading-spinner"></view><text>{{i18n.loading}}</text>
     </view>
 
     <view wx:else>
       <view wx:if="{{filteredCoupons.length === 0}}" class="empty-coupons">
         <text class="empty-icon">🎫</text>
         <text class="empty-text">{{getEmptyText()}}</text>
-        <text class="empty-sub">多参与活动获取更多优惠券</text>
+        <text class="empty-sub">{{i18n.getMoreCoupons}}</text>
       </view>
 
       <view class="cp-grid" wx:if="{{filteredCoupons.length > 0}}">
@@ -95,13 +95,13 @@
           <!-- 右侧信息区 -->
           <view class="cp-right-part">
             <view class="cr-top">
-              <text class="cp-name">{{item.name || '全场通用券'}}</text>
+              <text class="cp-name">{{item.name || i18n.couponName}}</text>
               <view class="cp-status-badge {{item.status === 'available' && !item.isExpired ? 'sb-active' : item.status === 'used' ? 'sb-used' : 'sb-expired'}}">
-                {{item.status === 'available' && !item.isExpired ? '可用' : item.status === 'used' ? '已使用' : '已过期'}}
+                {{item.status === 'available' && !item.isExpired ? i18n.available : item.status === 'used' ? i18n.used : i18n.expired}}
               </view>
             </view>
-            <text class="cp-scope">全场座位预约可用</text>
-            <text class="cp-date">{{item.formattedExpireDate || '长期有效'}}</text>
+            <text class="cp-scope">{{i18n.seatAvailable}}</text>
+            <text class="cp-date">{{item.formattedExpireDate || i18n.longTermValid}}</text>
           </view>
         </view>
       </view>
@@ -111,6 +111,6 @@
   <!-- 底部提示 -->
   <view class="coupon-tips" wx:if="{{!isLoading && filteredCoupons.length > 0}}">
     <text class="tips-icon">💡</text>
-    <text class="tips-text">优惠券在预订或续费时自动抵扣，选择最合适的优惠券即可享受折扣</text>
+    <text class="tips-text">{{i18n.couponTip}}</text>
   </view>
 </view>

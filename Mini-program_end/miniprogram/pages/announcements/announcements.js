@@ -1,13 +1,26 @@
+var i18n = require('../../i18n/i18n.js')
 Page({
   data: {
+    i18n: {},
+    currentLang: 'zh-CN',
     announcements: [],
     currentAnnouncement: null,
     otherAnnouncements: [],
     scrollTop: 0
   },
 
+  applyLanguage: function() {
+    var lang = i18n.getCurrentLang()
+    this.setData({ i18n: i18n.getPageText('announcements'), currentLang: lang })
+  },
+
   onLoad: function () {
+    this.applyLanguage();
     this.loadAnnouncements();
+  },
+
+  onShow: function () {
+    this.applyLanguage();
   },
 
   loadAnnouncements: function () {
@@ -16,7 +29,7 @@ Page({
     config.loadAnnouncements(function (data) {
       var now = new Date();
       var active = [];
-      var typeNames = { notice: '通知', activity: '活动', maintenance: '维护', urgent: '紧急' };
+      var typeNames = { notice: that.data.i18n.typeNotice, activity: that.data.i18n.typeActivity, maintenance: that.data.i18n.typeMaintenance, urgent: that.data.i18n.typeUrgent };
       for (var i = 0; i < data.length; i++) {
         var a = data[i];
         if (a.status !== 'active') continue;
@@ -30,7 +43,7 @@ Page({
             a.createdAt = that.formatDateStr(new Date(ct));
           }
         }
-        a.typeName = typeNames[a.type] || '通知';
+        a.typeName = typeNames[a.type] || that.data.i18n.typeNotice;
         active.push(a);
       }
       active.sort(function (x, y) {
