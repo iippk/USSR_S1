@@ -1,6 +1,6 @@
 /* rank.wxss - 排行榜 · Ocean Blue Premium v5.0 */
 
-.rank-page { padding-bottom: 40rpx; }
+.rank-page { padding-bottom: 200rpx; }
 
 /* ====== 头部卡片（青蓝渐变）====== */
 .rank-header {

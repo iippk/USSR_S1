@@ -1,6 +1,6 @@
 /* mine.wxss - 个人中心 · Ocean Blue Premium v5.0 */
 
-.mine-page { padding-bottom: 240rpx; }
+.mine-page { padding-bottom: 260rpx; }
 
 /* 内嵌用户卡片的累计学习次数 */
 .study-count-inline {

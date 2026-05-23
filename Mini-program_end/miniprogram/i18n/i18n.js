@@ -117,16 +117,8 @@ function refreshAllPages() {
   })
   if (tabBarPages.length > 0) {
     var tabBar = tabBarPages[0].getTabBar()
-    if (tabBar) {
-      var tabBarText = getTabBarText()
-      var list = tabBar.data.list
-      for (var k = 0; k < list.length; k++) {
-        var tabKey = ['home', 'seat', 'study', 'rank', 'mine'][k]
-        if (tabKey && tabBarText[tabKey]) {
-          list[k].text = tabBarText[tabKey]
-        }
-      }
-      tabBar.setData({ list: list })
+    if (tabBar && typeof tabBar.applyLanguage === 'function') {
+      tabBar.applyLanguage()
     }
   }
 }

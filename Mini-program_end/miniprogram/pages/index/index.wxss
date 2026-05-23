@@ -1,7 +1,7 @@
 /* index.wxss - 首页 · Ocean Blue Premium v5.0 */
 
 .index-page {
-  padding-bottom: 230rpx;
+  padding-bottom: 260rpx;
 }
 
 .maintenance-banner {

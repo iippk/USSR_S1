@@ -1,6 +1,6 @@
 /* study.wxss - 学时统计 · Ocean Blue Premium v5.0 */title
 
-.study-page { padding-bottom: 0rpx; }
+.study-page { padding-bottom: 200rpx; }
 
 /* ====== 状态卡片（靛蓝渐变）====== */
 .status-card {

@@ -1,183 +1,167 @@
-/* custom-tab-bar/index.wxss - 自定义底部导航栏 · Ocean Blue Premium */
+/* custom-tab-bar/index.wxss - iOS 26 / HarmonyOS 6.1 Floating Glass TabBar */
 
-.custom-tab-bar {
+.tab-bar-wrapper {
+  --ios-blue: #007AFF;
+  --ios-gray: #888888;
+  --tabbar-bg: rgba(255, 255, 255, 0.65);
+  --tabbar-bg-fallback: rgba(255, 255, 255, 0.92);
+  --tabbar-border: rgba(255, 255, 255, 0.45);
+  --tabbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --tabbar-radius: 50px;
+  --tabbar-bottom: 10px;
+  --tabbar-label-active: var(--ios-blue);
+  --tabbar-label-inactive: var(--ios-gray);
+  --tabbar-glow: rgba(0, 122, 255, 0.18);
+  --tabbar-dot-color: var(--ios-blue);
+
   position: fixed;
-  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--tabbar-bottom) + constant(safe-area-inset-bottom));
+  bottom: calc(var(--tabbar-bottom) + env(safe-area-inset-bottom));
+  z-index: 9999;
+  width: calc(100% - 48px);
+  max-width: 420px;
+  pointer-events: auto;
+  animation: tabbarFloatIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes tabbarFloatIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(40rpx) scale(0.95); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ====== Glass Background ====== */
+.tab-bar-glass {
+  position: relative;
+  border-radius: var(--tabbar-radius);
+  overflow: hidden;
+}
+
+.blur-on .tab-bar-glass {
+  background: var(--tabbar-bg);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: var(--tabbar-shadow);
+}
+
+.blur-off .tab-bar-glass {
+  background: var(--tabbar-bg-fallback);
+  box-shadow: var(--tabbar-shadow);
+}
+
+/* ====== Glass Border Highlight ====== */
+.tab-bar-border {
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
-  z-index: 9999;
-  pointer-events: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--tabbar-border), transparent);
+  z-index: 2;
 }
 
-.tab-bar-bg {
-  position: relative;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(30rpx) saturate(180%);
-  -webkit-backdrop-filter: blur(30rpx) saturate(180%);
-  border-top: 1rpx solid rgba(226, 232, 240, 0.6);
-  box-shadow:
-    0 -4rpx 24rpx rgba(15, 23, 42, 0.06),
-    0 -2rpx 8rpx rgba(15, 23, 42, 0.04),
-    inset 0 1rpx 0 rgba(255, 255, 255, 0.8);
-  pointer-events: auto;
-}
-
-/* ====== 顶部指示器轨道 ====== */
-.indicator-track {
-  position: relative;
-  height: 6rpx;
-  padding: 0 40rpx;
-  margin-bottom: 8rpx;
-}
-
-.indicator-dot {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 48rpx;
-  height: 6rpx;
-  background: linear-gradient(90deg, #2563EB, #60A5FA);
-  border-radius: 3rpx;
-  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2rpx 8rpx rgba(37, 99, 235, 0.4);
-}
-
-/* ====== Tab项布局 ====== */
-.tab-items {
+/* ====== Inner Layout ====== */
+.tab-bar-inner {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-around;
-  padding: 10rpx 0 16rpx;
+  padding: 4px 4px 6px;
   position: relative;
+  z-index: 1;
 }
 
-/* 单个Tab */
+/* ====== Tab Item ====== */
 .tab-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4rpx;
-  width: 120rpx;
-  padding: 8rpx 16rpx 6rpx;
-  border-radius: 28rpx;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  padding: 4px 0 2px;
+  border-radius: 12px;
+  transition: transform 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
   position: relative;
 }
 
 .tab-item:active {
-  transform: scale(0.88);
+  transform: scale(0.95);
 }
 
-.tab-item.animating {
-  animation: tabSpring 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes tabSpring {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.25); }
-  70% { transform: scale(0.92); }
-  100% { transform: scale(1); }
-}
-
-/* 图标容器 */
-.icon-wrap {
+/* ====== Icon Box ====== */
+.tab-icon-box {
   position: relative;
-  width: 52rpx;
-  height: 52rpx;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.tab-icon {
-  font-size: 42rpx;
+/* ====== Emoji Icon ====== */
+.tab-emoji {
+  font-size: 20px;
   line-height: 1;
   position: relative;
   z-index: 2;
-  transition: all 0.25s ease;
-  filter: grayscale(100%) opacity(0.55);
+  transition: all 300ms ease;
+  filter: grayscale(100%) opacity(0.5);
 }
 
-.tab-item.active .tab-icon {
+.tab-active .tab-emoji {
   filter: none;
   opacity: 1;
-  transform: translateY(-2rpx);
+  transform: translateY(-1px);
 }
 
-/* 激活光晕 */
-.icon-glow {
+/* ====== Active Glow ====== */
+.tab-active-glow {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 64rpx;
-  height: 32rpx;
-  margin-left: -32rpx;
-  margin-top: -14rpx;
-  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.22), transparent 70%);
+  width: 48px;
+  height: 24px;
+  margin-left: -24px;
+  margin-top: -10px;
+  background: radial-gradient(ellipse at center, var(--tabbar-glow), transparent 70%);
   border-radius: 50%;
-  animation: glowPulse 2s ease-in-out infinite;
+  z-index: 1;
+  animation: glowPulse 2.5s ease-in-out infinite;
 }
 
 @keyframes glowPulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.15); }
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.12); }
 }
 
-/* 点击波纹效果 */
-.ripple {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 80rpx;
-  height: 80rpx;
-  margin-left: -40rpx;
-  margin-top: -40rpx;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.18), transparent 70%);
-  animation: rippleOut 0.6s ease-out forwards;
-  z-index: 1;
-}
-
-@keyframes rippleOut {
-  0% { transform: scale(0.3); opacity: 1; }
-  100% { transform: scale(2); opacity: 0; }
-}
-
-/* 文字样式 */
-.tab-text {
-  font-size: 19rpx;
+/* ====== Label ====== */
+.tab-label {
+  font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   line-height: 1.2;
-  transition: all 0.25s ease;
-  color: #94A3B8;
+  transition: all 300ms ease;
+  color: var(--tabbar-label-inactive);
 }
 
-.tab-item.active .tab-text {
-  color: #2563EB;
+.tab-active .tab-label {
+  color: var(--tabbar-label-active);
   font-weight: 700;
-  font-size: 20rpx;
 }
 
-/* 选中指示圆点 */
-.select-indicator {
-  width: 8rpx;
-  height: 8rpx;
+/* ====== Active Dot ====== */
+.tab-active-dot {
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563EB, #60A5FA);
-  margin-top: 2rpx;
-  box-shadow: 0 0 6rpx rgba(37, 99, 235, 0.45);
+  background: var(--tabbar-dot-color);
+  margin-top: 1px;
+  box-shadow: 0 0 4px var(--tabbar-glow);
   animation: dotPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 @keyframes dotPopIn {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-/* 安全区 */
-.safe-area-bottom {
-  height: constant(safe-area-inset-bottom);
-  height: env(safe-area-inset-bottom);
-  min-height: 20rpx;
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
