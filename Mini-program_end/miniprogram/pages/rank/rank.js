@@ -41,7 +41,8 @@ Page({
   onShow: function() {
     this.applyLanguage();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 3 });
+      this.getTabBar().applyLanguage();
+      this.getTabBar().switchTo(3);
     }
     this.getRanking();
     this.getMessages();

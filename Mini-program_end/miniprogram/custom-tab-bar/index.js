@@ -70,6 +70,10 @@ Component({
       var item = this.data.list[index]
       if (index === this.data.selected) return
       wx.switchTab({ url: item.pagePath })
+    },
+
+    switchTo: function (index) {
+      this.setData({ selected: index })
     }
   }
 })

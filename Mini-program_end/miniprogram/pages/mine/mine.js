@@ -38,7 +38,8 @@ Page({
   onShow: function() {
     this.applyLanguage();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 4 });
+      this.getTabBar().applyLanguage();
+      this.getTabBar().switchTo(4);
     }
     this.updateUserInfo();
     this.getUserStats();
