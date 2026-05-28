@@ -3,16 +3,51 @@ import { CLOUD_CONFIG } from '../config/cloud.js'
 let app = null
 let db = null
 let isInitialized = false
+let initPromise = null
 
 export async function initCloudBase() {
+  if (isInitialized && db) {
+    return { app, db }
+  }
+
+  if (initPromise) {
+    return initPromise
+  }
+
+  initPromise = _doInit()
+
+  try {
+    const result = await initPromise
+    return result
+  } catch (error) {
+    initPromise = null
+    throw error
+  }
+}
+
+async function _doInit() {
   try {
     if (typeof cloudbase === 'undefined') {
       throw new Error('CloudBase SDK未加载完成，请刷新页面重试')
     }
 
-    app = cloudbase.init({ env: CLOUD_CONFIG.ENV_ID })
-    const auth = app.auth()
-    await auth.signInAnonymously()
+    app = cloudbase.init({
+      env: CLOUD_CONFIG.ENV_ID,
+      region: 'ap-shanghai'
+    })
+
+    const auth = app.auth({
+      persistence: 'local'
+    })
+
+    const loginState = await auth.getLoginState()
+    if (loginState && loginState.isAnonymousAuth) {
+      console.log('✅ 复用已有匿名登录状态')
+    } else {
+      await auth.signInAnonymously()
+      console.log('✅ 匿名登录成功')
+    }
+
     db = app.database()
     isInitialized = true
 
@@ -20,6 +55,9 @@ export async function initCloudBase() {
     return { app, db }
   } catch (error) {
     console.error('❌ 云开发初始化失败:', error)
+    app = null
+    db = null
+    isInitialized = false
     throw error
   }
 }
@@ -49,8 +87,34 @@ export async function callCloudFunction(name, data) {
     throw new Error('云开发未初始化')
   }
 
-  const res = await app.callFunction({ name, data })
-  return res.result
+  try {
+    const res = await app.callFunction({ name, data })
+    return res.result
+  } catch (error) {
+    console.error(`❌ 云函数 ${name} 调用失败:`, error)
+    if (error.message && (error.message.indexOf('auth') > -1 || error.message.indexOf('login') > -1 || error.message.indexOf('token') > -1)) {
+      console.log('🔄 认证过期，尝试重新初始化...')
+      isInitialized = false
+      app = null
+      db = null
+      initPromise = null
+      await initCloudBase()
+      const res = await app.callFunction({ name, data })
+      return res.result
+    }
+    throw error
+  }
+}
+
+export async function ensureCloudReady() {
+  if (isCloudReady()) return true
+  try {
+    await initCloudBase()
+    return true
+  } catch (error) {
+    console.error('❌ 云开发初始化失败:', error)
+    return false
+  }
 }
 
 export function formatDate(dateStr) {

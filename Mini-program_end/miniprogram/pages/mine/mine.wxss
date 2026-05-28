@@ -177,4 +177,22 @@
 .av-opt-icon { font-size: 40rpx; }
 .av-opt text:last-child { font-size: 25rpx; color: var(--gray-700); font-weight: 500; }
 
+.login-auth-modal { width: 600rpx !important; }
+.login-auth-avatar { display: flex; flex-direction: column; align-items: center; margin-bottom: 30rpx; }
+.login-avatar-btn {
+  position: relative; width: 140rpx; height: 140rpx; padding: 0 !important;
+  margin: 0 !important; border: none !important; background: transparent !important;
+  border-radius: 50% !important; overflow: hidden; line-height: normal !important;
+}
+.login-avatar-btn::after { display: none; }
+.login-avatar-img { width: 140rpx; height: 140rpx; border-radius: 50%; }
+.login-avatar-edit {
+  position: absolute; bottom: 0; right: 0; width: 44rpx; height: 44rpx;
+  background: linear-gradient(135deg, #7C3AED, #6D28D9); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 22rpx;
+}
+.login-avatar-tip { font-size: 22rpx; color: var(--gray-400); margin-top: 12rpx; }
+.login-auth-nickname { margin-top: 10rpx; }
+.login-nick-input { width: 100%; }
+
 .btn-cancel { background: var(--gray-100) !important; color: var(--gray-600) !important; font-weight: 600 !important; border: none !important; border-radius: var(--radius-lg) !important; }

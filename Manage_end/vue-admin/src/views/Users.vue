@@ -145,8 +145,7 @@
 import { ref, computed, inject } from "vue";
 import {
   getDB,
-  isCloudReady,
-  initCloudBase,
+  ensureCloudReady,
   formatDate as fmtDate,
   formatDuration as fmtDuration,
   getAvatarUrl,
@@ -196,10 +195,7 @@ const visiblePages = computed(() => {
 const loadUsers = async () => {
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) {
-      console.log("⏳ 云开发未初始化，正在初始化...");
-      await initCloudBase();
-    }
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
 
     const db = getDB();
     if (!db) {

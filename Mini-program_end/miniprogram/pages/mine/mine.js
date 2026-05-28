@@ -21,6 +21,9 @@ Page({
     showNicknameDialog: false,
     newNickname: '',
     showAvatarDialog: false,
+    showLoginModal: false,
+    loginAvatarUrl: '',
+    loginNickname: '',
     defaultAvatar: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
   },
 
@@ -235,51 +238,75 @@ Page({
   handleLogin: function() {
     var that = this;
     wx.getUserProfile({
-      desc: "用于登录自习室系统",
+      desc: '用于完善用户资料',
       success: function(userRes) {
+        var userInfo = userRes.userInfo;
         wx.showLoading({ title: that.data.i18n.loggingIn });
-        wx.cloud.callFunction({
-          name: "login",
-          data: { userInfo: userRes.userInfo },
-          success: function(cloudRes) {
-            if (cloudRes.result.success) {
-              var app = getApp();
-              var userData = cloudRes.result.data;
-              app.saveUserInfo(userData);
-              that.setData({ userInfo: userData });
-              that.migrateAvatarIfNeeded(userData);
-              that.getUserStats();
-              that.getStudyRecords();
-              that.getOrders();
+        wx.login({
+          success: function(loginRes) {
+            if (!loginRes.code) {
               wx.hideLoading();
-              wx.showToast({ title: that.data.i18n.loginSuccess, icon: "success" });
-            } else {
-              wx.hideLoading();
-              wx.showToast({ title: that.data.i18n.loginFailed, icon: "none" });
+              wx.showToast({ title: that.data.i18n.codeFailed, icon: 'none' });
+              return;
             }
+            wx.cloud.callFunction({
+              name: 'login',
+              data: {
+                code: loginRes.code,
+                nickName: userInfo.nickName,
+                avatarUrl: userInfo.avatarUrl
+              },
+              success: function(cloudRes) {
+                wx.hideLoading();
+                if (cloudRes.result.success) {
+                  var app = getApp();
+                  var userData = cloudRes.result.data;
+                  app.saveUserInfo(userData);
+                  that.setData({ userInfo: userData });
+                  that.migrateAvatarIfNeeded(userData);
+                  that.getUserStats();
+                  that.getStudyRecords();
+                  that.getOrders();
+                  wx.showToast({ title: that.data.i18n.loginSuccess, icon: 'success' });
+                } else {
+                  wx.showToast({ title: that.data.i18n.loginFailed, icon: 'none' });
+                }
+              },
+              fail: function(err) {
+                wx.hideLoading();
+                wx.showToast({ title: that.data.i18n.networkError, icon: 'none' });
+              }
+            });
           },
-          fail: function(err) {
+          fail: function() {
             wx.hideLoading();
-            wx.showToast({ title: that.data.i18n.deployCloudFirst, icon: "none" });
+            wx.showToast({ title: that.data.i18n.networkError, icon: 'none' });
           }
         });
       },
       fail: function(err) {
-        if (err.errMsg && err.errMsg.indexOf('user deny') !== -1) {
-          wx.showModal({
-            title: that.data.i18n.authTip,
-            content: that.data.i18n.authDeniedContent,
-            success: function(modalRes) {
-              if (modalRes.confirm) {
-                wx.openSetting({});
-              }
-            }
-          });
-        } else {
-          wx.showToast({ title: that.data.i18n.authFailed, icon: "none" });
-        }
+        console.log('getUserProfile failed:', err);
+        wx.showToast({ title: that.data.i18n.authFailed, icon: 'none', duration: 2000 });
       }
     });
+  },
+
+  closeLoginModal: function() {
+    this.setData({ showLoginModal: false });
+  },
+
+  onLoginOverlayTap: function(e) {
+    if (e.target === e.currentTarget) this.closeLoginModal();
+  },
+
+  onChooseLoginAvatar: function(e) {
+    if (e.detail.avatarUrl) {
+      this.setData({ loginAvatarUrl: e.detail.avatarUrl });
+    }
+  },
+
+  onLoginNicknameInput: function(e) {
+    this.setData({ loginNickname: e.detail.value });
   },
 
   migrateAvatarIfNeeded: function(userData) {

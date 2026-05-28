@@ -92,7 +92,7 @@
 
 <script setup>
 import { ref, onMounted, inject } from "vue";
-import { getDB, isCloudReady, initCloudBase } from "../utils/cloudBase.js";
+import { getDB, ensureCloudReady } from "../utils/cloudBase.js";
 import SeatUsageChart from "../components/SeatUsageChart.vue";
 import OrderTrendChart from "../components/OrderTrendChart.vue";
 import RevenueChart from "../components/RevenueChart.vue";
@@ -115,9 +115,8 @@ const allOrders = ref([]);
 
 const loadStatistics = async () => {
   try {
-    if (!isCloudReady()) {
-      await initCloudBase();
-    }
+    const ready = await ensureCloudReady();
+    if (!ready) throw new Error("云开发初始化失败");
 
     const db = getDB();
     if (!db) throw new Error("数据库连接失败");

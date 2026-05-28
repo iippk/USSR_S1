@@ -209,8 +209,7 @@ import { ref, computed, inject } from "vue";
 import {
   getDB,
   callCloudFunction,
-  isCloudReady,
-  initCloudBase,
+  ensureCloudReady,
   formatDate as fmtDate,
 } from "../utils/cloudBase.js";
 import { PAGE_SIZE } from "../config/cloud.js";
@@ -276,10 +275,7 @@ const isAllSelected = computed(() => {
 const loadSeats = async () => {
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) {
-      console.log("⏳ 云开发未初始化，正在初始化...");
-      await initCloudBase();
-    }
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
 
     const db = getDB();
     if (!db) {

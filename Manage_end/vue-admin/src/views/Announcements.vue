@@ -188,8 +188,7 @@
 import { ref, inject } from "vue";
 import {
   callCloudFunction,
-  isCloudReady,
-  initCloudBase,
+  ensureCloudReady,
   formatDate as fmtDate,
 } from "../utils/cloudBase.js";
 import Modal from "../components/Modal.vue";
@@ -227,7 +226,7 @@ const typeText = (type) => {
 const loadAnnouncements = async () => {
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     const res = await callCloudFunction("getSettings", {
       action: "getAllAnnouncements",
     });
@@ -296,7 +295,7 @@ const saveAnnouncement = async () => {
 
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
 
     const announcementData = {
       title: formData.value.title,
@@ -335,7 +334,7 @@ const saveAnnouncement = async () => {
 const toggleStatus = async (item, newStatus) => {
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     const res = await callCloudFunction("getSettings", {
       action: "updateAnnouncement",
       announcementId: item._id,
@@ -359,7 +358,7 @@ const toggleStatus = async (item, newStatus) => {
 const togglePin = async (item) => {
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     const res = await callCloudFunction("getSettings", {
       action: "updateAnnouncement",
       announcementId: item._id,
@@ -384,7 +383,7 @@ const deleteAnnouncement = async (item) => {
   if (!confirm("确定要删除此公告吗？")) return;
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     const res = await callCloudFunction("getSettings", {
       action: "deleteAnnouncement",
       announcementId: item._id,

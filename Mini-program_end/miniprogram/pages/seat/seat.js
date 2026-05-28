@@ -324,6 +324,17 @@ Page({
   checkLoginStatus: function () {
     var app = getApp();
     this.setData({ userInfo: app.globalData.userInfo });
+    if (!app.globalData.userInfo) {
+      wx.showModal({
+        title: this.data.i18n.tip,
+        content: this.data.i18n.loginRequired,
+        success: function(res) {
+          if (res.confirm) {
+            wx.switchTab({ url: '/pages/mine/mine' });
+          }
+        }
+      });
+    }
   },
 
   buildZoneHeaders: function (rowNumbers) {

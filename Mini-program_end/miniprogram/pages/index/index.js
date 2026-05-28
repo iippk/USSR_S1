@@ -192,7 +192,58 @@ Page({
     wx.navigateTo({ url: '/pages/announcements/announcements' });
   },
 
-  handleLogin: function () { wx.switchTab({ url: '/pages/mine/mine' }); },
+  handleLogin: function () {
+    var that = this;
+    wx.getUserProfile({
+      desc: '用于完善用户资料',
+      success: function(userRes) {
+        var userInfo = userRes.userInfo;
+        wx.showLoading({ title: that.data.i18n.loggingIn });
+        wx.login({
+          success: function(loginRes) {
+            if (!loginRes.code) {
+              wx.hideLoading();
+              wx.showToast({ title: that.data.i18n.codeFailed, icon: 'none' });
+              return;
+            }
+            wx.cloud.callFunction({
+              name: 'login',
+              data: {
+                code: loginRes.code,
+                nickName: userInfo.nickName,
+                avatarUrl: userInfo.avatarUrl
+              },
+              success: function(cloudRes) {
+                wx.hideLoading();
+                if (cloudRes.result.success) {
+                  var app = getApp();
+                  var userData = cloudRes.result.data;
+                  app.saveUserInfo(userData);
+                  that.setData({ isLoggedIn: true, userInfo: userData });
+                  that.getUserStats();
+                  wx.showToast({ title: that.data.i18n.loginSuccess, icon: 'success' });
+                } else {
+                  wx.showToast({ title: that.data.i18n.loginFailed, icon: 'none' });
+                }
+              },
+              fail: function(err) {
+                wx.hideLoading();
+                wx.showToast({ title: that.data.i18n.networkError, icon: 'none' });
+              }
+            });
+          },
+          fail: function() {
+            wx.hideLoading();
+            wx.showToast({ title: that.data.i18n.networkError, icon: 'none' });
+          }
+        });
+      },
+      fail: function(err) {
+        console.log('getUserProfile failed:', err);
+        wx.showToast({ title: that.data.i18n.authFailed, icon: 'none', duration: 2000 });
+      }
+    });
+  },
 
   handleLogout: function () {
     var that = this;

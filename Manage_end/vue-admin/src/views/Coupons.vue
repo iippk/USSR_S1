@@ -253,8 +253,7 @@
 import { ref, computed, inject } from "vue";
 import {
   callCloudFunction,
-  isCloudReady,
-  initCloudBase,
+  ensureCloudReady,
   formatDate as fmtDate,
 } from "../utils/cloudBase.js";
 import { PAGE_SIZE } from "../config/cloud.js";
@@ -343,7 +342,7 @@ const couponStatusText = (coupon) => {
 const loadCoupons = async () => {
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     const res = await callCloudFunction("getSettings", {
       action: "getAllCoupons",
     });
@@ -420,7 +419,7 @@ const createCoupon = async () => {
 
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     const res = await callCloudFunction("getSettings", {
       action: "createCoupons",
       couponData: {
@@ -458,7 +457,7 @@ const batchCreate = async () => {
 
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     const res = await callCloudFunction("getSettings", {
       action: "batchCreateNewUserCoupons",
     });
@@ -484,7 +483,7 @@ const deleteCoupon = async (coupon) => {
   if (!confirm("确定要删除此优惠券吗？")) return;
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     const res = await callCloudFunction("getSettings", {
       action: "deleteCoupon",
       couponId: coupon._id,

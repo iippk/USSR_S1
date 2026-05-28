@@ -220,8 +220,7 @@ import {
 } from "echarts/components";
 import {
   callCloudFunction,
-  isCloudReady,
-  initCloudBase,
+  ensureCloudReady,
 } from "../utils/cloudBase.js";
 
 use([
@@ -498,7 +497,7 @@ var couponOption = computed(function () {
 
 async function loadData() {
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
     var res = await callCloudFunction("getDashboardData", { trendRange: trendRange.value });
     if (res && res.success && res.data) {
       var d = res.data;

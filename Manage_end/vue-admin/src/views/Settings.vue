@@ -372,8 +372,7 @@
 import { ref, inject } from "vue";
 import {
   callCloudFunction,
-  isCloudReady,
-  initCloudBase,
+  ensureCloudReady,
 } from "../utils/cloudBase.js";
 
 const toast = inject("toast");
@@ -401,7 +400,7 @@ const settings = ref({ ...defaultSettings });
 const loadSettings = async () => {
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
 
     const res = await callCloudFunction("getSettings", {
       action: "getSettings",
@@ -420,7 +419,7 @@ const loadSettings = async () => {
 const saveSettings = async () => {
   loading.showLoadingState(true);
   try {
-    if (!isCloudReady()) await initCloudBase();
+    const ready = await ensureCloudReady(); if (!ready) throw new Error("云开发初始化失败");
 
     const settingsData = { ...settings.value };
     delete settingsData._id;
